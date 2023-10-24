@@ -1,0 +1,4 @@
+Ejecutar ./initServer.sh para iniciar el servidor.
+Si pone java da un error porque el puerto está ocupado, usar job y eliminar los procesos java
+
+Ejecutar ./stopServer.sh para detener el servidor
