@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
     sqlite3 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY ./appcesible .
+COPY ./appdata .
 
 ENV PORT=8080
 
