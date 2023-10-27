@@ -1,2 +1,12 @@
---sqlite appcesible.db < generateTables.sql
-CREATE TABLE students(id INTEGER PRIMARY KEY, name TEXT, age INTEGER);
+-- sqlite appcesible.db < generateTables.sql
+
+-- he puesto como INT el tipo de usuario y la clase porque creo que va a ser más sencillo en la implementación
+CREATE TABLE student (
+	id INTEGER PRIMARY KEY,
+	name TEXT,
+	passwd TEXT,
+	idProfileImg INTEGER,
+	userType INTEGER,
+	idClass INTEGER,
+	age INTEGER
+	);
