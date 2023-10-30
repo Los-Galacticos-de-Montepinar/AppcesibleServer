@@ -28,7 +28,7 @@ public class Server {
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
-                String name = resultSet.getString("name");
+                String name = resultSet.getString("userName");
                 int age = resultSet.getInt("age");
 
                 System.out.println("ID: " + id + ", Name: " + name + ", Age: " + age);
