@@ -12,7 +12,9 @@ import java.util.HashMap;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 
@@ -20,7 +22,8 @@ public class Server {
 
     private static Connection connection = null;
 
-	public static void queryTest(){
+    //! Query de ejemplo, no usa prepared statements, evitar usar
+	private static void queryTest(){
 		Statement statement = null;
 		ResultSet resultSet = null;
 
@@ -42,13 +45,68 @@ public class Server {
             try {
                 if (resultSet != null) resultSet.close();
                 if (statement != null) statement.close();
-                if (connection != null) connection.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
 		}
 
 	}
+
+    // Update user in the BD
+    private static void updateUser(int id,String userName,String passwd,int idPFP){
+        System.out.println("updating user...");
+        try {
+            PreparedStatement statement = connection.prepareStatement("UPDATE user SET username=?, passwd=?,idProfileImg=? WHERE id=?;");
+            statement.setString(1, userName);
+            statement.setString(2, passwd);
+            statement.setInt(3, idPFP);
+            statement.setInt(4, id);
+
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static Map<String, String> parseJson(String json) {
+        Map<String, String> jsonMap = new HashMap<>();
+        String[] keyValuePairs = json.replaceAll("[{}\"]", "").split(",");
+        for (String pair : keyValuePairs) {
+            String[] parts = pair.split(":");
+            if (parts.length == 2) {
+                jsonMap.put(parts[0].trim(), parts[1].trim());
+            }
+        }
+        return jsonMap;
+    }
+
+    private static Map<String, String> requestJson(HttpExchange exchange){
+        // Read the request body
+        BufferedReader reader = new BufferedReader(new InputStreamReader(exchange.getRequestBody()));
+        StringBuilder requestBody = new StringBuilder();
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                requestBody.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return parseJson(requestBody.toString());
+    }
+
+    private static void response(HttpExchange exchange, int code, String response){
+        try {
+            exchange.sendResponseHeaders(code, response.length());
+            OutputStream os = exchange.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void main(String[] args) throws IOException {
         // Create a SQL connection
@@ -58,65 +116,80 @@ public class Server {
             e.printStackTrace();
         }
 
-        queryTest();
-
         // Create an HTTP server that listens on port 8080
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
         // Create a context for the root path "/"
-        server.createContext("/", new MyHandler());
+        server.createContext("/user/", new UserHandler());
 
         // Start the server
         server.start();
+
+        //! He eliminado el método encargado de cerrar la conexion con la bd, no se donde sería necesario ponerlo ahora
     }
 
-    static class MyHandler implements HttpHandler {
+    static class UserHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             // Get the request method (POST, GET, etc.)
             String requestMethod = exchange.getRequestMethod();
 
             if ("POST".equals(requestMethod)) {
-                // Read the request body
-                BufferedReader reader = new BufferedReader(new InputStreamReader(exchange.getRequestBody()));
-                StringBuilder requestBody = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    requestBody.append(line);
+
+                int id = extractIdFromUrl(exchange.getRequestURI().getPath());
+                if(id>=0){
+                    // Parse the JSON payload manually
+                    Map<String, String> jsonMap = requestJson(exchange);
+
+                    if(jsonMap!=null){
+                        // Get fields from the JSON payload
+                        String name = jsonMap.get("name");
+                        String passwd = jsonMap.get("passwd");
+                        int idPFP = Integer.parseInt(jsonMap.get("pfp"));
+                        updateUser(id, name, passwd, idPFP);
+
+                        // Send a response 
+                        response(exchange, 200, "Received POST request at /user/"+id+ " to update user");
+                    } else {
+                        response(exchange, 400, "Received POST request with invalid format");
+                    }
+
+                } else if(id==-2){
+                    // Add new user
+                    // TODO
+
+                    // Parse the JSON payload manually
+                    Map<String, String> jsonMap = requestJson(exchange);
+
+                    // Get the fields from the JSON payload
+                    String name = jsonMap.get("name");
+                    String age = jsonMap.get("age");
+
+                    // Send a response 
+                    response(exchange, 200, "Received POST request at /user/new {name:"+name+", age:"+age+"}");
+                } else {
+                    // Send a response 
+                    response(exchange,400,"Received POST request at /user/ with invalid format");
                 }
-
-                // Parse the JSON payload manually
-                Map<String, String> jsonMap = parseJson(requestBody.toString());
-
-                // Get the "name" field from the JSON payload
-                String name = jsonMap.get("name");
-
-                // Send a response with the extracted "name" value
-                String response = "Received name: " + name + "\n";
-                exchange.sendResponseHeaders(200, response.length());
-                OutputStream os = exchange.getResponseBody();
-                os.write(response.getBytes());
-                os.close();
+            } else if ("GET".equals(requestMethod)) {
+                // Send a response
+                // TODO
+                response(exchange,200,"Received GET request at /user");
             } else {
                 // Handle other HTTP methods or provide an error response
-                String response = "Unsupported HTTP method";
-                exchange.sendResponseHeaders(405, response.length());
-                OutputStream os = exchange.getResponseBody();
-                os.write(response.getBytes());
-                os.close();
+                response(exchange,405,"Unsupported HTTP method");
             }
         }
 
-        private Map<String, String> parseJson(String json) {
-            Map<String, String> jsonMap = new HashMap<>();
-            String[] keyValuePairs = json.replaceAll("[{}\"]", "").split(",");
-            for (String pair : keyValuePairs) {
-                String[] parts = pair.split(":");
-                if (parts.length == 2) {
-                    jsonMap.put(parts[0].trim(), parts[1].trim());
-                }
+        //** Este método no es perfecto, lo unico que mira el es valor tras la última '/'
+        private int extractIdFromUrl(String path){
+            try {
+                String idString = path.substring(path.lastIndexOf('/') + 1);
+                if(idString.equals("new")) return -2;
+                else return Integer.parseInt(idString);
+            }catch(NumberFormatException e){
+                return -1; //Invalid URL format
             }
-            return jsonMap;
         }
     }
 }

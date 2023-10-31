@@ -1,2 +1,2 @@
-INSERT INTO students (name, age) VALUES ('Johnny Joestar', 19);
-INSERT INTO students (name, age) VALUES ('Gyro Zeppeli', 24);
+INSERT INTO user (id,userName, passwd,idProfileImg,userType,idClass,age) VALUES (NULL,'Johnny Joestar','pass22',2,0,0 ,19);
+INSERT INTO user (id,userName, passwd,idProfileImg,userType,idClass,age) VALUES (NULL,'Gyro Zeppeli','pass33',3,0,0 , 24);
