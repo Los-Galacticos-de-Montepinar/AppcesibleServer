@@ -18,7 +18,9 @@ import java.sql.Statement;
 
 public class Server {
 
-	public static void queryTest(Connection connection){
+    private static Connection connection = null;
+
+	public static void queryTest(){
 		Statement statement = null;
 		ResultSet resultSet = null;
 
@@ -50,14 +52,13 @@ public class Server {
 
     public static void main(String[] args) throws IOException {
         // Create a SQL connection
-        Connection connection = null;
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:db/appcesible.db");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        queryTest(connection);
+        queryTest();
 
         // Create an HTTP server that listens on port 8080
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
