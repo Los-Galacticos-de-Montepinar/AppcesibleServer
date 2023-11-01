@@ -8,15 +8,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.HashMap;
-
+import java.util.List;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 
 public class Server {
 
@@ -68,6 +68,22 @@ public class Server {
         }
     }
 
+    // Get User from the BD
+    private static ResultSet getUser(int id){
+        System.out.println("getting user...");
+        ResultSet resultSet = null;
+        PreparedStatement statement;
+        try {
+            statement = connection.prepareStatement("SELECT * FROM user WHERE id=?");
+            statement.setInt(1, id);
+            resultSet = statement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.err.println("query");
+        return resultSet;
+    }
+
     private static Map<String, String> parseJson(String json) {
         Map<String, String> jsonMap = new HashMap<>();
         String[] keyValuePairs = json.replaceAll("[{}\"]", "").split(",");
@@ -78,6 +94,30 @@ public class Server {
             }
         }
         return jsonMap;
+    }
+
+    private static String userToJson(ResultSet resultSet){
+        // Convert the ResultSet to a list of JSON objects
+        List<String> jsonResults = new ArrayList<>();
+        try {
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String name = resultSet.getString("userName");
+                String pfp = resultSet.getString("idProfileImg");
+                String userType = resultSet.getString("userType");
+                String idClass = resultSet.getString("idClass");                
+                String age = resultSet.getString("age");
+
+                String json = "{\"id\":" + id + ",\"userName\":\"" + name + "\",\"pfp\":\"" + pfp +  "\",\"userType\":\"" + userType +  "\",\"idClass\":\"" + idClass + "\",\"age\":\""+ age + "\"}";
+                jsonResults.add(json);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Combine the JSON objects into an array
+        String jsonResponse = "[" + String.join(",", jsonResults) + "]";
+        return jsonResponse;
     }
 
     private static Map<String, String> requestJson(HttpExchange exchange){
@@ -173,8 +213,17 @@ public class Server {
                 }
             } else if ("GET".equals(requestMethod)) {
                 // Send a response
-                // TODO
-                response(exchange,200,"Received GET request at /user");
+                int id = extractIdFromUrl(exchange.getRequestURI().getPath());
+                if(id>=0)
+                {
+                    String user = userToJson(getUser(id));
+                    System.out.println(user);
+                    response(exchange, 200, user);
+                }else {
+                    // Send a response 
+                    response(exchange,400,"Received GET request at /user/ with invalid format");
+                }
+                
             } else {
                 // Handle other HTTP methods or provide an error response
                 response(exchange,405,"Unsupported HTTP method");
