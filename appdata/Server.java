@@ -29,7 +29,7 @@ public class Server {
 
 		try {
 			statement = connection.createStatement();
-            resultSet = statement.executeQuery("SELECT * FROM students");
+            resultSet = statement.executeQuery("SELECT * FROM user");
 
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
