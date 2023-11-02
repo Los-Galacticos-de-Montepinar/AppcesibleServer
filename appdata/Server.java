@@ -84,6 +84,24 @@ public class Server {
         return resultSet;
     }
 
+    // Create user in the BD
+    private static void createUser(String username,String passwd,String date, int idClass, int userType,int pfp){
+        System.out.println("updating user...");
+        try{
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO user (id,userName, passwd,idProfileImg,userType,idClass,age) VALUES (NULL,?,?,?,?,?,?);");
+            statement.setString(1, username);
+            statement.setString(2, passwd);
+            statement.setInt(3, pfp);
+            statement.setInt(4, userType);
+            statement.setInt(5, idClass);   
+            statement.setInt(6, 99);
+
+            statement.executeUpdate();
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
     private static Map<String, String> parseJson(String json) {
         Map<String, String> jsonMap = new HashMap<>();
         String[] keyValuePairs = json.replaceAll("[{}\"]", "").split(",");
@@ -194,17 +212,22 @@ public class Server {
 
                 } else if(id==-2){
                     // Add new user
-                    // TODO
 
                     // Parse the JSON payload manually
                     Map<String, String> jsonMap = requestJson(exchange);
 
                     // Get the fields from the JSON payload
-                    String name = jsonMap.get("name");
-                    String age = jsonMap.get("age");
+                    String name = jsonMap.get("userName");
+                    int pfp = Integer.parseInt(jsonMap.get("pfp"));
+                    int idClass = Integer.parseInt(jsonMap.get("idClass"));
+                    String date = "date";
+                    String pass = jsonMap.get("passwd");
+                    int type = Integer.parseInt(jsonMap.get("userType"));
+
+                    createUser(name, pass, date, idClass, type, pfp);
 
                     // Send a response 
-                    response(exchange, 200, "Received POST request at /user/new {name:"+name+", age:"+age+"}");
+                    response(exchange, 200, "Received POST request at /user/new to create new user");
                 } else {
                     // Send a response 
                     response(exchange,400,"Received POST request at /user/ with invalid format");
