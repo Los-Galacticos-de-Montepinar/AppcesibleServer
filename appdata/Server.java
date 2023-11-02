@@ -108,7 +108,7 @@ public class Server {
                 String idClass = resultSet.getString("idClass");                
                 String age = resultSet.getString("age");
 
-                String json = "{\"id\":" + id + ",\"userName\":\"" + name + "\",\"pfp\":\"" + pfp +  "\",\"userType\":\"" + userType +  "\",\"idClass\":\"" + idClass + "\",\"age\":\""+ age + "\"}";
+                String json = "{\"id\":" + id + ",\"userName\":\"" + name + "\",\"pfp\":" + pfp +  ",\"userType\":" + userType +  ",\"idClass\":" + idClass + ",\"age\":"+ age + "}";
                 jsonResults.add(json);
             }
         } catch (SQLException e) {
@@ -117,7 +117,7 @@ public class Server {
 
         // Combine the JSON objects into an array
         String jsonResponse = "[" + String.join(",", jsonResults) + "]";
-        return jsonResponse;
+        return jsonResults.get(0);
     }
 
     private static Map<String, String> requestJson(HttpExchange exchange){
