@@ -98,7 +98,7 @@ public class Server {
 
     private static String userToJson(ResultSet resultSet){
         // Convert the ResultSet to a list of JSON objects
-        List<String> jsonResults = new ArrayList<>();
+        String jsonResults = "";
         try {
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
@@ -108,16 +108,14 @@ public class Server {
                 String idClass = resultSet.getString("idClass");                
                 String age = resultSet.getString("age");
 
-                String json = "{\"id\":" + id + ",\"userName\":\"" + name + "\",\"pfp\":" + pfp +  ",\"userType\":" + userType +  ",\"idClass\":" + idClass + ",\"age\":"+ age + "}";
-                jsonResults.add(json);
+                jsonResults = "{\"id\":" + id + ",\"userName\":\"" + name + "\",\"pfp\":" + pfp +  ",\"userType\":" + userType +  ",\"idClass\":" + idClass + ",\"age\":"+ age + "}";
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
         // Combine the JSON objects into an array
-        String jsonResponse = "[" + String.join(",", jsonResults) + "]";
-        return jsonResults.get(0);
+        return jsonResults;
     }
 
     private static Map<String, String> requestJson(HttpExchange exchange){
