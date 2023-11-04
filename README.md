@@ -1,6 +1,8 @@
 # AppcesibleServer
 
-Una vez:
+## Docker
+
+Ejecutar una vez para montar el servidor
 
     docker build -t appcesible:1.0 .   
     docker run -p 8080:8080 -v "$(pwd)/appdata:/app" -it -d --name appcesible appcesible:1.0
@@ -41,6 +43,6 @@ Obtener todos los estudiantes
     curl -i -X GET http://localhost:8080/user/student
 
 Los tipos de usuario son los siguientes
-    * 0 profesor
-    * 1 estudiante
-    * 2 administrador
+- 0 profesor
+- 1 estudiante
+- 2 administrador
