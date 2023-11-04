@@ -13,7 +13,7 @@ Cada vez que se quiera entrar en el terminal del servidor
 
 Leer el readme dentro del servidor para ver como se inicia el servidor
 
-## API:
+## API
 Obtener usuario con id
 
     curl -i -X GET http://localhost:8080/user/id
