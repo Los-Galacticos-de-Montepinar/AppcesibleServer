@@ -20,6 +20,29 @@ public class Server {
 
     private static Connection connection = null;
 
+    // Session
+    public static String authenticate(String inputName,String inputPassword){
+        System.out.println("authenticating...");
+        String token = "";
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM user WHERE userName=?");
+            statement.setString(1, inputName);
+            ResultSet resultSet = statement.executeQuery();
+            int id = resultSet.getInt("id");
+            String password = resultSet.getString("passwd");
+            if(inputPassword.equals(password)){
+                token = SessionManager.findSessionTokenByUser(id);
+                if(token == null){
+                    token = SessionManager.createSessionToken(id);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return token;
+    }
+
     // Update user in the BD
     private static void updateUser(int id,String userName,String passwd,int idPFP){
         System.out.println("updating user...");
@@ -94,6 +117,21 @@ public class Server {
             e.printStackTrace();
         }
         return resultSet;
+    }
+
+    // Delete user in the BD
+    private static void deleteUser(int id){
+        System.out.println("deleting user...");
+        try{
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM user WHERE id=?");
+            statement.setInt(1,id);
+            statement.executeUpdate();
+            PreparedStatement studentStatement = connection.prepareStatement("DELETE FROM student WHERE idUser=?");
+            studentStatement.setInt(1,id);
+            studentStatement.executeUpdate();
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
     }
 
     // Create user in the BD
@@ -234,6 +272,7 @@ public class Server {
 
         // Create a context for the user path
         server.createContext("/user", new UserHandler());
+        server.createContext("/session", new SessionHandler());
 
         // Start the server
         server.start();
@@ -241,7 +280,64 @@ public class Server {
         //! He eliminado el método encargado de cerrar la conexion con la bd, no se donde sería necesario ponerlo ahora
     }
 
+    static class SessionHandler implements HttpHandler{
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            // Get the request method (POST, GET, etc.)
+            String requestMethod = exchange.getRequestMethod();
+
+            UrlOperation operation = analizeUrl(exchange.getRequestURI().getPath());
+            Map<String, String> jsonMap = requestJson(exchange);
+            if ("POST".equals(requestMethod)) {
+                if(operation.action == UrlAction.LOGIN){
+                    String name = jsonMap.get("userName");
+                    String password = jsonMap.get("passwd");
+                    String token = authenticate(name,password);
+                    if(!token.equals("")){
+                        response(exchange, 200, token);
+                    }else{
+                        response(exchange, 401, "Incorrect username or password");
+                    }
+                }else if(operation.action == UrlAction.LOGOUT){
+                    String token = jsonMap.get("sessionToken");
+                    if(SessionManager.invalidateSessionToken(token)){
+                        response(exchange, 200, "Logout");
+                    }else{
+                        response(exchange, 401, "Incorrect token");
+                    }
+                } else{
+                    // Send a response 
+                    response(exchange,400,"Received POST request at /session with invalid format");
+                }
+            }else {
+                // Handle other HTTP methods or provide an error response
+                response(exchange,405,"Unsupported HTTP method");
+            }
+        }
+
+        private UrlOperation analizeUrl(String path){
+            UrlOperation operation = new UrlOperation(0, UrlAction.ERROR);
+            try {
+                String[] parts = path.split("/");
+                int size = parts.length;
+                String idString = parts[size-1];
+
+                if(size==3){
+                    if(parts[1].equals("session")){
+                        if(idString.equals("login")) operation.set(0,UrlAction.LOGIN);// Login
+                        else if(idString.equals("logout")) operation.set(0,UrlAction.LOGOUT);
+                    }
+                }
+
+            }catch(NumberFormatException e){
+                return operation; //Invalid URL format
+            }
+            return operation;
+        }
+    }
+
     static class UserHandler implements HttpHandler {
+        // ! Por tal de simplificar la comunicacion por ahora, ninguna operacion requiere un token sesión
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             // Get the request method (POST, GET, etc.)
@@ -256,7 +352,7 @@ public class Server {
 
                     if(jsonMap!=null){
                         // Get fields from the JSON payload
-                        String name = jsonMap.get("name");
+                        String name = jsonMap.get("userName");
                         String passwd = jsonMap.get("passwd");
                         int idPFP = Integer.parseInt(jsonMap.get("pfp"));
                         updateUser(operation.id, name, passwd, idPFP);
@@ -290,6 +386,11 @@ public class Server {
 
                     // Send a response 
                     response(exchange, 200, "Received POST request at /user/new to create new user");
+                } else if (operation.action == UrlAction.DELETE_USER){
+                    // Parse the JSON payload manually
+                    Map<String, String> jsonMap = requestJson(exchange);
+                    deleteUser(operation.id);
+                    response(exchange, 200, "Received POST request at /user/delete/"+operation.id+" to delete user");
                 } else {
                     // Send a response 
                     response(exchange,400,"Received POST request at /user with invalid format");
@@ -359,6 +460,9 @@ public class Server {
                         }
                         else if(parts[2].equals("teacher")){
                             operation.set(Integer.parseInt(idString),UrlAction.TEACHER);
+                        }
+                        else if(parts[2].equals("delete")){
+                            operation.set(Integer.parseInt(idString),UrlAction.DELETE_USER);
                         }
                     }
                 }
