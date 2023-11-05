@@ -75,3 +75,5 @@ Obtener token de sesion
 Cerrar session usando un TOKEN
 
     curl -i -X POST -H 'Content-Type: application/json' -d '{"sessionToken": "TOKEN"}' http://localhost:8080/session/logout
+
+Por ahora el token no es necesario para hacer get y posts de los usuarios, pero recomiendo que la aplicación se programe como si sí fuera necesario, para que cuando se implemente en el servidor no sea necesario repensar la aplicación
