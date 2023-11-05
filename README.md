@@ -4,8 +4,12 @@
 
 Ejecutar una vez para montar el servidor
 
+    # mientras estamos en el directorio padre de appdata
     docker build -t appcesible:1.0 .   
     docker run -p 8080:8080 -v "$(pwd)/appdata:/app" -it -d --name appcesible appcesible:1.0
+
+    # o con script
+    ./dockerbuild.sh
 
 Cada vez que se quiera entrar en el terminal del servidor
 
@@ -27,7 +31,17 @@ Obtener todos los usuarios
 
 Crear nuevo usuario
 
-    curl -i -X POST -H 'Content-Type: application/json' -d '{"userName": "Diego Brando","pfp":4,"userType":0,"idClass":0,"passwd":"pass"}' http://localhost:8080/user/new
+    curl -i -X POST -H 'Content-Type: application/json'\
+    -d '{"userName": "Diego Brando","pfp":4,"userType":0,"idClass":0,"passwd":"pass"}'\
+    http://localhost:8080/user/new
+
+    curl -i -X POST -H 'Content-Type: application/json'\
+    -d '{"userName": "Lucy Steel","pfp":5,"userType":0,"idClass":1,"passwd":"pass","letterSize":20,"interactionFormat":2,"loginType":1}'\
+    http://localhost:8080/user/new
+
+Actualizar usuario
+
+    curl -i -X POST -H 'Content-Type: application/json' -d '{"letterSize":23}' http://localhost:8080/user/1
 
 Obtener profesor con ID
 

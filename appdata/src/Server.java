@@ -20,6 +20,15 @@ public class Server {
 
     private static Connection connection = null;
 
+    // string to id
+    public static int string2id(String string){
+        try{
+            return Integer.parseInt(string);
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
     // Session
     public static String authenticate(String inputName,String inputPassword){
         System.out.println("authenticating...");
@@ -44,16 +53,51 @@ public class Server {
     }
 
     // Update user in the BD
-    private static void updateUser(int id,String userName,String passwd,int idPFP){
+    private static void updateUser(int id,String userName,String passwd,int idPFP,int idClass,int letterSize,int loginType,int interactionFormat){
         System.out.println("updating user...");
         try {
-            PreparedStatement statement = connection.prepareStatement("UPDATE user SET username=?, passwd=?,idProfileImg=? WHERE id=?;");
-            statement.setString(1, userName);
-            statement.setString(2, passwd);
-            statement.setInt(3, idPFP);
-            statement.setInt(4, id);
-
-            statement.executeUpdate();
+            if(userName!=null){
+                PreparedStatement statement = connection.prepareStatement("UPDATE user SET username=? WHERE id=?;");
+                statement.setString(1, userName);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+            if(passwd!=null){
+                PreparedStatement statement = connection.prepareStatement("UPDATE user SET passwd=? WHERE id=?;");
+                statement.setString(1, passwd);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+            if(idPFP>=0){
+                PreparedStatement statement = connection.prepareStatement("UPDATE user SET idProfileImg=? WHERE id=?;");
+                statement.setInt(1, idPFP);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+            if(idClass>=0){
+                PreparedStatement statement = connection.prepareStatement("UPDATE user SET idClass=? WHERE id=?;");
+                statement.setInt(1, idClass);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+            if(letterSize>=0){
+                PreparedStatement statement = connection.prepareStatement("UPDATE student SET letterSize=? WHERE idUser=?;");
+                statement.setInt(1, letterSize);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+            if(loginType>=0){
+                PreparedStatement statement = connection.prepareStatement("UPDATE student SET loginType=? WHERE idUser=?;");
+                statement.setInt(1, loginType);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+            if(interactionFormat>=0){
+                PreparedStatement statement = connection.prepareStatement("UPDATE student SET interactionFormat=? WHERE idUser=?;");
+                statement.setInt(1, interactionFormat);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -354,8 +398,14 @@ public class Server {
                         // Get fields from the JSON payload
                         String name = jsonMap.get("userName");
                         String passwd = jsonMap.get("passwd");
-                        int idPFP = Integer.parseInt(jsonMap.get("pfp"));
-                        updateUser(operation.id, name, passwd, idPFP);
+                        int idPFP = string2id(jsonMap.get("pfp"));
+                        int idClass = string2id(jsonMap.get("idClass"));
+                        
+                        int letterSize = string2id(jsonMap.get("letterSize"));
+                        int loginType = string2id(jsonMap.get("loginType"));
+                        int interactionFormat = string2id(jsonMap.get("interactionFormat"));
+
+                        updateUser(operation.id, name, passwd, idPFP,idClass,letterSize,loginType,interactionFormat);
 
                         // Send a response 
                         response(exchange, 200, "Received POST request at /user/"+operation.id+ " to update user");
