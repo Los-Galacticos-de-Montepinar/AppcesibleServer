@@ -4,6 +4,8 @@
 DROP TABLE user;
 DROP TABLE teacher;
 DROP TABLE student;
+DROP TABLE task;
+DROP TABLE taskStep;
 
 -- he puesto como INT el tipo de usuario y la clase porque creo que va a ser más sencillo en la implementación
 -- user:
@@ -34,4 +36,18 @@ CREATE TABLE student(
 	FOREIGN KEY (idUser) REFERENCES user(id)
 );
 
+CREATE TABLE task (
+	id INTEGER PRIMARY KEY,
+	title TEXT,
+	taskDesc TEXT
+);
+
+CREATE TABLE taskStep(
+	id INTEGER PRIMARY KEY,
+	stepDesc TEXT,
+	stepMedia TEXT,
+	taskOrder INTEGER,
+	idTask INTEGER,
+	FOREIGN KEY (idTask) REFERENCES task(id)
+);
 
