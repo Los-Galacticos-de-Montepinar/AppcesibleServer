@@ -25,4 +25,3 @@ if [ $? -eq 0 ]; then
 else
         echo "Could not start server"
 fi
-
