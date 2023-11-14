@@ -25,11 +25,11 @@ public class Server {
         System.out.println("authenticating...");
         String token = "";
         try {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM user WHERE userName=?");
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM user cross join loginInfo WHERE user.id = loginInfo.idUser AND userName=?");
             statement.setString(1, inputName);
             ResultSet resultSet = statement.executeQuery();
             int id = resultSet.getInt("id");
-            String password = resultSet.getString("passwd");
+            String password = resultSet.getString("textPass");
             if(inputPassword.equals(password)){
                 token = SessionManager.findSessionTokenByUser(id);
                 if(token == null){
@@ -41,6 +41,76 @@ public class Server {
             e.printStackTrace();
         }
         return token;
+    }
+
+    public static String authenticate(String inputName,String inputPass0,String inputPass1,String inputPass2){
+        System.out.println("authenticating...");
+        String token = "";
+        try {
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM user cross join loginInfo WHERE user.id = loginInfo.idUser AND userName=?");
+            statement.setString(1, inputName);
+            ResultSet resultSet = statement.executeQuery();
+            int id = resultSet.getInt("id");
+            String passPart0 = resultSet.getString("passPart0");
+            String passPart1 = resultSet.getString("passPart1");
+            String passPart2 = resultSet.getString("passPart2");
+
+            int passCount = 0;
+
+            if(inputPass0==null){
+                token = "0";
+            }else if(inputPass0.equals(passPart0)){
+                passCount++;
+            }else{
+                return "";
+            }
+
+            if(inputPass1==null){
+                token = "0";
+            }else if(inputPass1.equals(passPart1)){
+                passCount++;
+            }else{
+                return "";
+            }
+
+            if(inputPass2==null){
+                token = "0";
+            }else if(inputPass2.equals(passPart2)){
+                passCount++;
+            }else{
+                return "";
+            }
+
+            if(passCount==3){
+                token = SessionManager.findSessionTokenByUser(id);
+                if(token == null){
+                    token = SessionManager.createSessionToken(id);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return token;
+    }
+
+    public static int getAuthenticationMethod(String inputName){
+        int method = -1;
+        try {
+            PreparedStatement existsStatement = connection.prepareStatement("SELECT COUNT(*) FROM user WHERE userName=\'"+inputName+"\'");
+            ResultSet exists = existsStatement.executeQuery();
+            if(exists.getInt(1)==1){
+                PreparedStatement statement = connection.prepareStatement("SELECT * FROM user cross join loginInfo WHERE user.id = loginInfo.idUser AND userName=?");
+                statement.setString(1, inputName);
+                ResultSet resultSet = statement.executeQuery();
+
+                method = resultSet.getInt("method");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return method;
     }
 
     // Create task in the BD
@@ -138,19 +208,13 @@ public class Server {
     }
 
     // Update user in the BD
-    public static void updateUser(int id,String userName,String passwd,int idPFP,int idClass,int letterSize,int loginType,int interactionFormat){
+    public static void updateUser(int id,String userName,int idPFP,int idClass,int letterSize,int interactionFormat){
         System.out.println("updating user...");
         // * Esto es muy feo pero no se como hacerlo mas bonito
         try {
             if(userName!=null){
                 PreparedStatement statement = connection.prepareStatement("UPDATE user SET username=? WHERE id=?;");
                 statement.setString(1, userName);
-                statement.setInt(2, id);
-                statement.executeUpdate();
-            }
-            if(passwd!=null){
-                PreparedStatement statement = connection.prepareStatement("UPDATE user SET passwd=? WHERE id=?;");
-                statement.setString(1, passwd);
                 statement.setInt(2, id);
                 statement.executeUpdate();
             }
@@ -172,15 +236,47 @@ public class Server {
                 statement.setInt(2, id);
                 statement.executeUpdate();
             }
-            if(loginType>=0){
-                PreparedStatement statement = connection.prepareStatement("UPDATE student SET loginType=? WHERE idUser=?;");
-                statement.setInt(1, loginType);
-                statement.setInt(2, id);
-                statement.executeUpdate();
-            }
             if(interactionFormat>=0){
                 PreparedStatement statement = connection.prepareStatement("UPDATE student SET interactionFormat=? WHERE idUser=?;");
                 statement.setInt(1, interactionFormat);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Update user login info
+    public static void updateUserLogin(int id,int method, String textPass, String passPart0, String passPart1, String passPart2){
+        try {
+            PreparedStatement methodStatement = connection.prepareStatement("UPDATE loginInfo SET method=? WHERE idUser=?;");
+            methodStatement.setInt(1, method);
+            methodStatement.setInt(2, id);
+            methodStatement.executeUpdate();
+
+            if(textPass!=null){
+                PreparedStatement statement = connection.prepareStatement("UPDATE loginInfo SET textPass=? WHERE idUser=?;");
+                statement.setString(1, textPass);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+            if(passPart0!=null){
+                PreparedStatement statement = connection.prepareStatement("UPDATE loginInfo SET passPart0=? WHERE idUser=?;");
+                statement.setString(1, passPart0);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+            if(passPart1!=null){
+                PreparedStatement statement = connection.prepareStatement("UPDATE loginInfo SET passPart1=? WHERE idUser=?;");
+                statement.setString(1, passPart1);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+            if(passPart2!=null){
+                PreparedStatement statement = connection.prepareStatement("UPDATE loginInfo SET passPart2=? WHERE idUser=?;");
+                statement.setString(1, passPart2);
                 statement.setInt(2, id);
                 statement.executeUpdate();
             }
@@ -261,46 +357,62 @@ public class Server {
             PreparedStatement studentStatement = connection.prepareStatement("DELETE FROM student WHERE idUser=?");
             studentStatement.setInt(1,id);
             studentStatement.executeUpdate();
+            PreparedStatement loginStatement = connection.prepareStatement("DELETE FROM loginInfo WHERE idUser=?");
+            loginStatement.setInt(1,id);
+            loginStatement.executeUpdate();
         }catch(SQLException e){
             e.printStackTrace();
         }
     }
 
     // Create user in the BD
-    public static int createUser(String username,String passwd, int idClass, int userType,int pfp){
+    public static int createUser(String username, int idClass, int userType,int pfp){
         System.out.println("creating user...");
+        int id = -1;
         try{
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO user (id,userName, passwd,idProfileImg,userType,idClass) VALUES (NULL,?,?,?,?,?);");
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO user (id,userName,idProfileImg,userType,idClass) VALUES (NULL,?,?,?,?);");
             statement.setString(1, username);
-            statement.setString(2, passwd);
-            statement.setInt(3, pfp);
-            statement.setInt(4, userType);
-            statement.setInt(5, idClass);   
+            statement.setInt(2, pfp);
+            statement.setInt(3, userType);
+            statement.setInt(4, idClass);   
             statement.executeUpdate();
 
-            if(userType == 1){
-                
-                PreparedStatement lastUserStatement = connection.prepareStatement("SELECT MAX(id) FROM user;");
-                ResultSet resultSet = lastUserStatement.executeQuery();
-                int id = resultSet.getInt(1);
-                return id;
-            }
+            PreparedStatement lastUserStatement = connection.prepareStatement("SELECT MAX(id) FROM user;");
+            ResultSet resultSet = lastUserStatement.executeQuery();
+            id = resultSet.getInt(1);
 
         }catch(SQLException e){
             e.printStackTrace();
         }
-        return -1;
+        return id;
     }
 
     // Create student in the BD
-    public static void createStudent(int userId,int letterSize,int loginType,int interactionFormat){
+    public static void createStudent(int userId,int letterSize,int interactionFormat){
         System.out.println("Creating student...");
         try{
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO student (id,userId,letterSize,loginType,interactionFormat) VALUES (NULL,?,?,?,?);");
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO student (id,idUSer,letterSize,interactionFormat) VALUES (NULL,?,?,?);");
             statement.setInt(1, userId);
             statement.setInt(2, letterSize);
-            statement.setInt(3, loginType);
-            statement.setInt(4, interactionFormat);
+            statement.setInt(3, interactionFormat);
+
+            statement.executeUpdate();
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    // Create loginInfo in the BD
+    public static void createLoginInfo(int userId,int method,String textPass,String passPart0,String passPart1,String passPart2){
+        System.out.println("Creating loginInfo...");
+        try{
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO loginInfo (id,idUser,method,textPass,passPart0,passPart1,passPart2) VALUES (NULL,?,?,?,?,?,?);");
+            statement.setInt(1, userId);
+            statement.setInt(2, method);
+            statement.setString(3, textPass);
+            statement.setString(4, passPart0);
+            statement.setString(5, passPart1);
+            statement.setString(6, passPart2);
 
             statement.executeUpdate();
         }catch(SQLException e){
@@ -334,9 +446,10 @@ public class Server {
 
             if(userType == 1){
                 int letterSize = resultSet.getInt("letterSize");
-                int loginType = resultSet.getInt("loginType");
+                // TODO devolver el tipo de login
+                // int loginType = resultSet.getInt("loginType");
                 int interactionFormat = resultSet.getInt("interactionFormat");
-                jsonResults += ",\"letterSize\":"+ letterSize + ",\"loginType\":"+loginType+",\"interactionFormat:\""+interactionFormat;
+                jsonResults += ",\"letterSize\":"+ letterSize + ",\"interactionFormat:\""+interactionFormat;
             }
 
         } catch (Exception e) {

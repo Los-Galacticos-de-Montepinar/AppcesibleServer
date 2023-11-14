@@ -16,13 +16,44 @@ public class SessionHandler implements HttpHandler{
         if ("POST".equals(requestMethod)) {
             if(operation.action == UrlAction.LOGIN){
                 String name = jsonMap.get("userName");
-                String password = jsonMap.get("passwd");
-                String token = Server.authenticate(name,password);
-                if(!token.equals("")){
-                    Server.response(exchange, 200, token);
-                }else{
-                   Server. response(exchange, 401, "Incorrect username or password");
+                String token = "";
+
+                int authenticationMethod = Server.getAuthenticationMethod(name);
+
+                switch(authenticationMethod){
+                case 0:
+                    String password = jsonMap.get("passwd");
+                    token = Server.authenticate(name,password);
+                    if(!token.equals("")){
+                        Server.response(exchange, 200, token);
+                    }else{
+                        Server. response(exchange, 401, "Incorrect username or password");
+                    }
+                    break;
+                case 1:
+                    String passwordPart0 = jsonMap.get("passPart0");
+                    String passwordPart1 = jsonMap.get("passPart1");
+                    String passwordPart2 = jsonMap.get("passPart2");
+
+                    token = Server.authenticate(name,passwordPart0,passwordPart1,passwordPart2);
+
+                    if(token.equals("0")){
+                        Server.response(exchange, 202, token);
+                    }else if(!token.equals("")){
+                        Server.response(exchange, 200, token);
+                    }else{
+                        Server. response(exchange, 401, "Incorrect username or password");
+                    }
+                    break;
+                default:
+                    Server.response(exchange, 401, "User does not exist");
+                    break;
                 }
+
+
+
+
+
             }else if(operation.action == UrlAction.LOGOUT){
                 String token = jsonMap.get("sessionToken");
                 if(SessionManager.invalidateSessionToken(token)){

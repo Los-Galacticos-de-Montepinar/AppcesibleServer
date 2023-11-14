@@ -38,12 +38,15 @@ http://localhost:8080/user/new
 ```
 ```sh
 curl -i -X POST -H 'Content-Type: application/json' \
--d '{"userName": "Lucy Steel","pfp":5,"userType":0,"idClass":1,"passwd":"pass","letterSize":20,"interactionFormat":2,"loginType":1}' \
+-d '{"userName": "Lucy Steel","pfp":5,"userType":1,"idClass":1,"letterSize":20,"interactionFormat":2,"loginType":1,"passPart0":"img0","passPart1":"img1","passPart2":"img2"}' \
 http://localhost:8080/user/new
 ```
 Actualizar usuario con ID = 1
 ```sh
 curl -i -X POST -H 'Content-Type: application/json' -d '{"letterSize":23}' http://localhost:8080/user/1
+```
+```sh
+curl -i -X POST -H 'Content-Type: application/json' -d '{"loginType":1,"passPart0":"img0","passPart1":"img1","passPart2":"img2"}' http://localhost:8080/user/1
 ```
 Obtener profesor con ID = 1
 ```sh
@@ -90,10 +93,24 @@ curl -i -X GET http://localhost:8080/task/1/steps
 ```
 ### Session
 
+Comprobar validez de contraseña parcial
+```sh
+# Si devuelve 0, es que es válida
+# No devuelve el token si no se envian los 3 componentes correctos
+curl -i -X POST -H 'Content-Type: application/json' \
+-d '{"userName": "Lucy Steel","passPart0":"img0","passPart1":"img1"}' \
+http://localhost:8080/session/login
+```
+
 Obtener token de sesión
 ```sh
 curl -i -X POST -H 'Content-Type: application/json' \
 -d '{"userName": "Gyro Zeppeli","passwd":"pass33"}' http://localhost:8080/session/login
+```
+```sh
+curl -i -X POST -H 'Content-Type: application/json' \
+-d '{"userName": "Lucy Steel","passPart0":"img0","passPart1":"img1","passPart2":"img2"}' \
+http://localhost:8080/session/login
 ```
 Cerrar sesión usando un TOKEN = 4d49b7bd-359e-4aa7-9919-979dfc285e2c
 ```sh

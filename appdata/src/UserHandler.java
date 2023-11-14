@@ -22,15 +22,21 @@ public class UserHandler implements HttpHandler {
                 if(jsonMap!=null){
                     // Get fields from the JSON payload
                     String name = jsonMap.get("userName");
-                    String passwd = jsonMap.get("passwd");
+
                     int idPFP = Server.string2id(jsonMap.get("pfp"));
                     int idClass = Server.string2id(jsonMap.get("idClass"));
                     
                     int letterSize = Server.string2id(jsonMap.get("letterSize"));
                     int loginType = Server.string2id(jsonMap.get("loginType"));
                     int interactionFormat = Server.string2id(jsonMap.get("interactionFormat"));
-
-                    Server.updateUser(operation.id, name, passwd, idPFP,idClass,letterSize,loginType,interactionFormat);
+                    Server.updateUser(operation.id, name,idPFP,idClass,letterSize,interactionFormat);
+                    if(loginType >= 0){
+                        String passwd = jsonMap.get("passwd");
+                        String passPart0 = jsonMap.get("passPart0");
+                        String passPart1 = jsonMap.get("passPart1");
+                        String passPart2 = jsonMap.get("passPart2");
+                        Server.updateUserLogin(operation.id, loginType, passwd,passPart0,passPart1,passPart2);
+                    } 
 
                     // Send a response 
                     Server.response(exchange, 200, "Received POST request at /user/"+operation.id+ " to update user");
@@ -48,16 +54,25 @@ public class UserHandler implements HttpHandler {
                 String name = jsonMap.get("userName");
                 int pfp = Integer.parseInt(jsonMap.get("pfp"));
                 int idClass = Integer.parseInt(jsonMap.get("idClass"));
-                String pass = jsonMap.get("passwd");
+               
                 int type = Integer.parseInt(jsonMap.get("userType"));
 
-                int studentUserId = Server.createUser(name, pass, idClass, type, pfp);
-                if(studentUserId>=0){
+                int userId = Server.createUser(name, idClass, type, pfp);
+                if(type==1){
                     int letterSize = Integer.parseInt(jsonMap.get("letterSize"));
-                    int loginType = Integer.parseInt(jsonMap.get("loginType"));
                     int interactionFormat = Integer.parseInt(jsonMap.get("interactionFormat"));
-                    Server.createStudent(studentUserId,letterSize , loginType, interactionFormat);
+                    Server.createStudent(userId,letterSize, interactionFormat);
                 }
+                int loginType = Server.string2id(jsonMap.get("loginType"));
+                String textPass = jsonMap.get("passwd");
+                String passPart0 = jsonMap.get("passPart0");
+                String passPart1 = jsonMap.get("passPart1");
+                String passPart2 = jsonMap.get("passPart2");
+
+                // Si no se especifica el tipo de login será de contraseña
+                loginType = loginType == -1 ? 0 : loginType;
+
+                Server.createLoginInfo(userId,loginType,textPass,passPart0,passPart1,passPart2);
 
                 // Send a response 
                 Server.response(exchange, 200, "Received POST request at /user/new to create new user");
