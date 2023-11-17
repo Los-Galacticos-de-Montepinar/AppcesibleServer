@@ -1,3 +1,4 @@
+-- sqlite3 appcesible.db < fillTables.sql
 DELETE FROM user;
 DELETE FROM student;
 DELETE FROM loginInfo;

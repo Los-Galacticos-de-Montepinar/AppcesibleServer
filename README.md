@@ -91,6 +91,21 @@ Obtener todos los pasos de una tarea con ID = 1
 ```sh
 curl -i -X GET http://localhost:8080/task/1/steps
 ```
+Crear una peticion de material
+```sh
+curl -i -XPOST -H 'Content-Type: application/json' \
+-d '{"desc": "Do a thing desc","title":"Thing"}' \
+http://localhost:8080/task/petition/new
+```
+Añadir item a una peticion de material con ID = 1
+```sh
+curl -i -X POST -H 'Content-Type: application/json' \
+-d '{"item: 1,"count":10}' http://localhost:8080/task/petition/1/item/new
+```
+Obtener items de una peticion de material con ID = 1
+```sh
+curl -i -X GET http://localhost:8080/task/petition/1/item
+```
 ### Session
 
 Comprobar validez de contraseña parcial
@@ -117,4 +132,20 @@ Cerrar sesión usando un TOKEN = 4d49b7bd-359e-4aa7-9919-979dfc285e2c
 curl -i -X POST -H 'Content-Type: application/json' \
 -d '{"sessionToken": "4d49b7bd-359e-4aa7-9919-979dfc285e2c"}' \
 http://localhost:8080/session/logout
+```
+### Items
+
+Añadir nuevo item al inventario
+```sh
+curl -i -X POST -H 'Content-Type: application/json' \
+-d '{"name": "Bulb","image":"img"}' \
+http://localhost:8080/item/new
+```
+Obtener item con ID = 1
+```sh
+curl -i -X GET http://localhost:8080/item/1
+```
+Obtener todos los items
+```sh
+curl -i -X GET http://localhost:8080/item
 ```

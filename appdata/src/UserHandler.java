@@ -1,4 +1,3 @@
-import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
 
@@ -77,8 +76,6 @@ public class UserHandler implements HttpHandler {
                 // Send a response 
                 Server.response(exchange, 200, "Received POST request at /user/new to create new user");
             } else if (operation.action == UrlAction.DELETE_USER){
-                // Parse the JSON payload manually
-                Map<String, String> jsonMap = Server.requestJson(exchange);
                 Server.deleteUser(operation.id);
                 Server.response(exchange, 200, "Received POST request at /user/delete/"+operation.id+" to delete user");
             } else {
@@ -89,27 +86,27 @@ public class UserHandler implements HttpHandler {
             // ! Tengo que hacer un switch pero me da pereza
             if(operation.action==UrlAction.USER){
                 // Get user
-                String user = Server.userToJson(Server.getUser(operation.id));
+                String user = Utils.userToJson(Server.getUser(operation.id));
                 Server.response(exchange, 200, user);
             }else if(operation.action==UrlAction.STUDENT){
                 // Get student
-                String user = Server.userToJson(Server.getStudent(operation.id));
+                String user = Utils.userToJson(Server.getStudent(operation.id));
                 Server.response(exchange, 200, user);
             }else if(operation.action==UrlAction.TEACHER){
                 // Get teacher
-                String user = Server.userToJson(Server.getUser(operation.id));
+                String user = Utils.userToJson(Server.getUser(operation.id));
                 Server.response(exchange, 200, user);
             }else if(operation.action==UrlAction.ALL_USERS){
                 // Get all users
-                String allUsers = Server.multipleUsersToJson(Server.getAllUsers(-1));
+                String allUsers = Utils.multipleUsersToJson(Server.getAllUsers(-1));
                 Server.response(exchange, 200, allUsers);
             }else if(operation.action==UrlAction.ALL_STUDENTS){
                 // Get all students
-                String allUsers = Server.multipleUsersToJson(Server.getAllStudents());
+                String allUsers = Utils.multipleUsersToJson(Server.getAllStudents());
                 Server.response(exchange, 200, allUsers);
             }else if(operation.action==UrlAction.ALL_TEACHERS){
                 // Get all teachers
-                String allUsers = Server.multipleUsersToJson(Server.getAllUsers(0));
+                String allUsers = Utils.multipleUsersToJson(Server.getAllUsers(0));
                 Server.response(exchange, 200, allUsers);
             }
             else{
@@ -125,41 +122,17 @@ public class UserHandler implements HttpHandler {
 
     private UrlOperation analizeUrl(String path){
         UrlOperation operation = new UrlOperation(0, UrlAction.ERROR);
-        try {
-            String[] parts = path.split("/");
-            int size = parts.length;
-            String idString = parts[size-1];
 
-            if(size==2){ 
-                if(idString.equals("user")){
-                    operation.set(0,UrlAction.ALL_USERS);//All users
-                } 
-            }
-            else if(size==3){
-                if(parts[1].equals("user")){
-                    if(idString.equals("new")) operation.set(0,UrlAction.NEW_USER);//New user
-                    else if(parts[2].equals("student")) operation.set(0,UrlAction.ALL_STUDENTS);
-                    else if(parts[2].equals("teacher")) operation.set(0,UrlAction.ALL_TEACHERS);
-                    else operation.set(Integer.parseInt(idString),UrlAction.USER);// A user
-                }
-            }
-            else if(size==4){
-                if(parts[1].equals("user")){
-                    if(parts[2].equals("student")){
-                        operation.set(Integer.parseInt(idString),UrlAction.STUDENT);
-                    }
-                    else if(parts[2].equals("teacher")){
-                        operation.set(Integer.parseInt(idString),UrlAction.TEACHER);
-                    }
-                    else if(parts[2].equals("delete")){
-                        operation.set(Integer.parseInt(idString),UrlAction.DELETE_USER);
-                    }
-                }
-            }
+        int n = -2;
 
-        }catch(NumberFormatException e){
-            return operation; //Invalid URL format
-        }
+        if(Utils.compareURL(path, "/user")!=-2) operation.set(-1,UrlAction.ALL_USERS);
+        if(Utils.compareURL(path, "/user/student")!=-2) operation.set(-1,UrlAction.ALL_STUDENTS);
+        if(Utils.compareURL(path, "/user/teacher")!=-2) operation.set(n,UrlAction.ALL_TEACHERS);
+        n = Utils.compareURL(path, "/user/delete/?"); if(n!=-2) operation.set(-1,UrlAction.DELETE_USER);
+        if(Utils.compareURL(path, "/user/new")!=-2) operation.set(n,UrlAction.NEW_USER);
+        n = Utils.compareURL(path, "/user/student/?"); if(n!=-2) operation.set(-1,UrlAction.STUDENT);
+        n = Utils.compareURL(path, "/user/teacher/?"); if(n!=-2) operation.set(n,UrlAction.TEACHER);
+
         return operation;
     }
 }

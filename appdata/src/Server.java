@@ -1,5 +1,4 @@
 import com.sun.net.httpserver.HttpServer;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.net.InetSocketAddress;
@@ -8,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Map;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -114,12 +112,13 @@ public class Server {
     }
 
     // Create task in the BD
-    public static int createTask(String title,String desc){
+    public static int createTask(String title,String desc,int type){
         System.out.println("creating task...");
         try{
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO task (id,title, taskDesc) VALUES (NULL,?,?);");
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO task (id,title, taskDesc, taskType) VALUES (NULL,?,?,?);");
             statement.setString(1,title);
             statement.setString(2,desc);
+            statement.setInt(3, type);
             statement.executeUpdate();
 
             PreparedStatement lastTaskStatement = connection.prepareStatement("SELECT MAX(id) FROM task;");
@@ -131,6 +130,92 @@ public class Server {
             e.printStackTrace();
         }
         return -1;
+    }
+
+    public static void updateTask(int id,String title,String desc){
+        try {
+            if(title!=null){
+                PreparedStatement statement = connection.prepareStatement("UPDATE task SET title=? WHERE id=?;");
+                statement.setString(1, title);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+            if(desc!=null){
+                PreparedStatement statement = connection.prepareStatement("UPDATE task SET taskDesc=? WHERE id=?;");
+                statement.setString(1, desc);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteTaskItem(int id){
+        PreparedStatement statement;
+        try {
+            statement = connection.prepareStatement("DELETE FROM itemTaskEntry WHERE id=?");
+            statement.setInt(1,id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void updateTaskItem(int id,int quantity,int type){
+        try {
+            if(quantity>=0){
+                PreparedStatement statement = connection.prepareStatement("UPDATE itemTaskEntry SET quantity=? WHERE id=?;");
+                statement.setInt(1, quantity);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+            if(type>=0){
+                PreparedStatement statement = connection.prepareStatement("UPDATE task SET idItem=? WHERE id=?;");
+                statement.setInt(1, type);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Create a task item for a petition task
+    public static int createTaskItem(int taskId,int item,int count){
+        System.out.println("creating task item...");
+        try{
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO itemTaskEntry (id,idTask, quantity, idItem) VALUES (NULL,?,?,?);");
+            statement.setInt(1,taskId);
+            statement.setInt(2,count);
+            statement.setInt(3,item);
+
+            statement.executeUpdate();
+
+            PreparedStatement lastTaskStatement = connection.prepareStatement("SELECT MAX(id) FROM itemTaskEntry;");
+            ResultSet resultSet = lastTaskStatement.executeQuery();
+            int id = resultSet.getInt(1);
+            
+            return id;
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    // Get all task items from task
+    public static ResultSet getTaskItemFromTask(int id){
+        System.out.println("getting tasks steps from task...");
+        ResultSet resultSet = null;
+        PreparedStatement statement;
+        try {
+            statement = connection.prepareStatement("SELECT * FROM itemTaskEntry cross join item WHERE idTask=? AND item.id == itemTaskEntry.idItem;");
+            statement.setInt(1, id);
+            resultSet = statement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultSet;
     }
 
     // Create task step in the BD
@@ -205,6 +290,67 @@ public class Server {
             e.printStackTrace();
         }
         return resultSet;
+    }
+
+    // Create item
+    public static void createItem(String itemName, String image){
+        System.out.println("creating item...");
+        try{
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO item (id, itemName,imageName) VALUES (NULL,?,?);");
+            statement.setString(1,itemName);
+            statement.setString(2,image);
+            statement.executeUpdate();
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    // Get item
+    public static ResultSet getItem(int id){
+        System.out.println("getting item...");
+        ResultSet resultSet = null;
+        PreparedStatement statement;
+        try {
+            statement = connection.prepareStatement("SELECT * FROM item WHERE id=?;");
+            statement.setInt(1, id);
+            resultSet = statement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultSet;
+    }
+
+    // Get all items
+    public static ResultSet getAllItems(){
+        System.out.println("getting item...");
+        ResultSet resultSet = null;
+        PreparedStatement statement;
+        try {
+            statement = connection.prepareStatement("SELECT * FROM item;");
+            resultSet = statement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultSet;
+    }
+
+    public static void updateItem(int id, String name, String image){
+        try {
+            if(name!=null){
+                PreparedStatement statement = connection.prepareStatement("UPDATE item SET itemName=? WHERE id=?;");
+                statement.setString(1, name);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+            if(image!=null){
+                PreparedStatement statement = connection.prepareStatement("UPDATE item SET imageName=? WHERE id=?;");
+                statement.setString(1, image);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // Update user in the BD
@@ -432,111 +578,6 @@ public class Server {
         return jsonMap;
     }
 
-    public static String userToJson(ResultSet resultSet){
-        // Convert the ResultSet to a list of JSON objects
-        String jsonResults = "";
-        try {
-            int id = resultSet.getInt("id");
-            String name = resultSet.getString("userName");
-            int pfp = resultSet.getInt("idProfileImg");
-            int userType = resultSet.getInt("userType");
-            int idClass = resultSet.getInt("idClass");
-         
-            jsonResults = "\"id\":" + id + ",\"userName\":\"" + name + "\",\"pfp\":" + pfp +  ",\"userType\":" + userType +  ",\"idClass\":" + idClass;
-
-            if(userType == 1){
-                int letterSize = resultSet.getInt("letterSize");
-                // TODO devolver el tipo de login
-                // int loginType = resultSet.getInt("loginType");
-                int interactionFormat = resultSet.getInt("interactionFormat");
-                jsonResults += ",\"letterSize\":"+ letterSize + ",\"interactionFormat:\""+interactionFormat;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        jsonResults = "{" + jsonResults + "}";
-
-        return jsonResults;
-    }
-
-    public static String multipleUsersToJson(ResultSet resultSet){
-        String jsonResults = "";
-        ArrayList<String> userList = new ArrayList<>();
-        try {
-            while (resultSet.next()) {
-                userList.add(userToJson(resultSet));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        jsonResults = "[" + String.join(",", userList) + "]";
-        // Combine the JSON objects into an array
-        return jsonResults;
-    }
-
-    public static String multipleTaskStepsToJson(ResultSet resultSet){
-        String jsonResults = "";
-        ArrayList<String> stepList = new ArrayList<>();
-        try{
-            while (resultSet.next()) {
-                stepList.add(taskStepToJson(resultSet));
-            }
-            
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        jsonResults = "[" + String.join(",", stepList) + "]";
-        return jsonResults;
-    }
-
-    public static String taskStepToJson(ResultSet resultSet){
-        String jsonResults = "";
-        try{
-            int id = resultSet.getInt("id");
-            String desc = resultSet.getString("stepDesc");
-            String media = resultSet.getString("stepMedia");
-            int order = resultSet.getInt("taskOrder");
-            int idTask = resultSet.getInt("idTask");
-         
-            jsonResults = "{\"id\":" + id + ",\"desc\":\"" + desc + "\",\"media\":\"" + media +  "\",\"order\":"+order+",\"taskId\":"+idTask+"}";
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-
-        return jsonResults;
-    }
-
-    public static String taskToJson(ResultSet resultSet){
-        String jsonResults = "";
-        try{
-            int id = resultSet.getInt("id");
-            String desc = resultSet.getString("taskDesc");
-            String title = resultSet.getString("title");
-         
-            jsonResults = "{\"id\":" + id + ",\"desc\":\"" + desc + "\",\"title\":\"" + title +  "\"}";
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return jsonResults;
-    }
-
-    public static String multipleTasksToJson(ResultSet resultSet){
-        String jsonResults = "";
-        ArrayList<String> taskList = new ArrayList<>();
-        try{
-            while (resultSet.next()) {
-                taskList.add(taskToJson(resultSet));
-            }
-            
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        jsonResults = "[" + String.join(",", taskList) + "]";
-        return jsonResults;
-    }
-
     public static Map<String, String> requestJson(HttpExchange exchange){
         // Read the request body
         BufferedReader reader = new BufferedReader(new InputStreamReader(exchange.getRequestBody()));
@@ -589,6 +630,7 @@ public class Server {
         server.createContext("/user", new UserHandler());
         server.createContext("/session", new SessionHandler());
         server.createContext("/task", new TaskHandler());
+        server.createContext("/item", new ItemHandler());
 
         // Start the server
         server.start();

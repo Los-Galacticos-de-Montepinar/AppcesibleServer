@@ -1,4 +1,3 @@
-import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
 
@@ -73,21 +72,10 @@ public class SessionHandler implements HttpHandler{
 
     private UrlOperation analizeUrl(String path){
         UrlOperation operation = new UrlOperation(0, UrlAction.ERROR);
-        try {
-            String[] parts = path.split("/");
-            int size = parts.length;
-            String idString = parts[size-1];
 
-            if(size==3){
-                if(parts[1].equals("session")){
-                    if(idString.equals("login")) operation.set(0,UrlAction.LOGIN);// Login
-                    else if(idString.equals("logout")) operation.set(0,UrlAction.LOGOUT);
-                }
-            }
+        if(Utils.compareURL(path, "/session/login")!=-2) operation.set(-1,UrlAction.LOGIN);
+        if(Utils.compareURL(path, "/session/logout")!=-2) operation.set(-1,UrlAction.LOGOUT);
 
-        }catch(NumberFormatException e){
-            return operation; //Invalid URL format
-        }
         return operation;
     }
 }
