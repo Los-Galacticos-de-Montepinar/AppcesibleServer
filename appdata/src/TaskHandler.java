@@ -41,6 +41,11 @@ public class TaskHandler implements HttpHandler{
                 int count = Server.string2id(jsonMap.get("count"));
                 int id = Server.createTaskItem(operation.id,item,count);
                 Server.response(exchange,200,""+id);
+            }else if(operation.action==UrlAction.TASK_ASSIGN){
+                int user = Server.string2id(jsonMap.get("user"));
+                String date = jsonMap.get("date");
+                int id = Server.createAssignment(operation.id,user,date);
+                Server.response(exchange,200,""+id);
             }else{
                 // Send a response 
                 Server.response(exchange,400,"Received POST request at /task with invalid format");
@@ -89,7 +94,8 @@ public class TaskHandler implements HttpHandler{
         n = Utils.compareURL(path, "/task/petition/?/item/new"); if(n!=-2) operation.set(n,UrlAction.NEW_TASKITEM);
         n = Utils.compareURL(path, "/task/petition/?/item"); if(n!=-2) operation.set(n,UrlAction.ALL_TASKITEMS);
         n = Utils.compareURL(path, "/task/petition/item/delete/?"); if(n!=-2) operation.set(n,UrlAction.DELETE_TASKITEM);//TODO
-        
+        n = Utils.compareURL(path, "/task/?/assign"); if(n!=-2) operation.set(n,UrlAction.TASK_ASSIGN);
+
         return operation;
     }
 }

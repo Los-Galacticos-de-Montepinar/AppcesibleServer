@@ -83,6 +83,10 @@ curl -i -X POST -H 'Content-Type: application/json' \
 -d '{"media":"videolink","order":1,"taskId":1,"desc":"start cleaning"}' \
 http://locahost:8080/task/step/new
 ```
+Obtener una tarea con ID = 1
+```sh
+curl -i -X GET http://localhost:8080/task/1
+```
 Obtener todas las tareas
 ```sh
 curl -i -X GET http://localhost:8080/task

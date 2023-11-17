@@ -292,6 +292,17 @@ public class Server {
         return resultSet;
     }
 
+    // Create an assigment in the BD
+    public static int createAssignment(int id,int idUser,String date){
+        return -1;
+    }
+
+    // Get all tasks assigned to user
+    public static ResultSet getAssignments(int idUser){
+        ResultSet resultSet = null;
+        return resultSet;
+    }
+
     // Create item
     public static void createItem(String itemName, String image){
         System.out.println("creating item...");
