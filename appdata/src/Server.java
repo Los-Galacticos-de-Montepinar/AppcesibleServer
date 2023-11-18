@@ -132,6 +132,7 @@ public class Server {
         return -1;
     }
 
+    // Update task in the BD
     public static void updateTask(int id,String title,String desc){
         try {
             if(title!=null){
@@ -151,6 +152,7 @@ public class Server {
         }
     }
 
+    // Delete task item in the bd
     public static void deleteTaskItem(int id){
         PreparedStatement statement;
         try {
@@ -162,6 +164,7 @@ public class Server {
         }
     }
 
+    // Update task item in the BD
     public static void updateTaskItem(int id,int quantity,int type){
         try {
             if(quantity>=0){
@@ -233,6 +236,33 @@ public class Server {
         }
     }
 
+    // Update task step in the BD
+    public static void updateTaskStep(int id,String desc, int order,String stepMedia){
+        System.out.println("updating step...");
+        try {
+            if(order>=0){
+                PreparedStatement statement = connection.prepareStatement("UPDATE taskStep SET taskOrder=? WHERE id=?;");
+                statement.setInt(1, order);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+            if(desc!=null){
+                PreparedStatement statement = connection.prepareStatement("UPDATE taskStep SET stepDesc=? WHERE id=?;");
+                statement.setString(1, desc);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+            if(stepMedia!=null){
+                PreparedStatement statement = connection.prepareStatement("UPDATE taskStep SET stepMedia=? WHERE id=?;");
+                statement.setString(1, stepMedia);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     // Get task from the BD
     public static ResultSet getTask(int id){
         System.out.println("getting task...");
@@ -293,13 +323,37 @@ public class Server {
     }
 
     // Create an assigment in the BD
-    public static int createAssignment(int id,int idUser,String date){
+    public static int createAssignment(int idTask,int idUser,String date){
+        System.out.println("assigning task...");
+        try{
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO taskAssignment (id, idTask,idUser,finishDate) VALUES (NULL,?,?,?);");
+            statement.setInt(1,idTask);
+            statement.setInt(2,idUser);
+            statement.setString(3,date);
+            statement.executeUpdate();
+
+            PreparedStatement lastStatement = connection.prepareStatement("SELECT MAX(id) FROM taskAssignment;");
+            ResultSet resultSet = lastStatement.executeQuery();
+            int id = resultSet.getInt(1);
+            return id;
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
         return -1;
     }
 
     // Get all tasks assigned to user
     public static ResultSet getAssignments(int idUser){
+        System.out.println("getting user assignments...");
         ResultSet resultSet = null;
+        PreparedStatement statement;
+        try {
+            statement = connection.prepareStatement("SELECT * FROM taskAssignment WHERE idUser=?;");
+            statement.setInt(1, idUser);
+            resultSet = statement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return resultSet;
     }
 

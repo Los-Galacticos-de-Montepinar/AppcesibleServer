@@ -110,6 +110,14 @@ Obtener items de una peticion de material con ID = 1
 ```sh
 curl -i -X GET http://localhost:8080/task/petition/1/item
 ```
+Asignar una tarea con ID = 1 a un usuario con ID = 1
+```sh
+curl -i -X POST -H 'Content-Type: application/json' -d '{"date": "10/11/24","user":1}' http://localhost:8080/task/1/assign
+```
+Obtener todas las tareas asignadas a un usuario con ID = 1
+```sh
+curl -i -X GET http://localhost:8080/task/user/1
+```
 ### Session
 
 Comprobar validez de contraseña parcial

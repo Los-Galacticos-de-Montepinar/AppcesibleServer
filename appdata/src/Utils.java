@@ -3,6 +3,22 @@ import java.sql.ResultSet;
 
 public class Utils {
 
+    static int compareURL(String in,String template){
+        String[] inParts = in.split("/");
+        String[] templateParts = template.split("/");
+
+        if(inParts.length!=templateParts.length) return -2;
+        int value = -1;
+        for(int i = 1 ; i < inParts.length;i++){
+            if(templateParts[i].equals("?")){
+                value = Server.string2id(inParts[i]);
+                if(value==-1) return -2;
+            }else if(!templateParts[i].equals(inParts[i])) return -2;
+        }
+
+        return value;
+    }
+
     public static String userToJson(ResultSet resultSet){
         // Convert the ResultSet to a list of JSON objects
         String jsonResults = "";
@@ -47,6 +63,35 @@ public class Utils {
         return jsonResults;
     }
 
+        public static String itemToJson(ResultSet resultSet){
+        String jsonResult = "";
+        try{
+            int id = resultSet.getInt("id");
+            String name = resultSet.getString("itemName");
+            String image = resultSet.getString("imageName");
+         
+            jsonResult = "{\"id\":" + id + ",\"name\":\"" + name + "\",\"image\":\"" + image + "\"}";
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return jsonResult;
+    }
+
+    public static String multipleItemsToJson(ResultSet resultSet){
+        String jsonResult = "";
+        ArrayList<String> itemList = new ArrayList<>();
+        try{
+            while (resultSet.next()) {
+                itemList.add(itemToJson(resultSet));
+            }
+         
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        jsonResult = "[" + String.join(",", itemList) + "]";
+        return jsonResult;
+    }
+
     public static String multipleTaskStepsToJson(ResultSet resultSet){
         String jsonResults = "";
         ArrayList<String> stepList = new ArrayList<>();
@@ -60,22 +105,6 @@ public class Utils {
         }
         jsonResults = "[" + String.join(",", stepList) + "]";
         return jsonResults;
-    }
-
-    static int compareURL(String in,String template){
-        String[] inParts = in.split("/");
-        String[] templateParts = template.split("/");
-
-        if(inParts.length!=templateParts.length) return -2;
-        int value = -1;
-        for(int i = 1 ; i < inParts.length;i++){
-            if(templateParts[i].equals("?")){
-                value = Server.string2id(inParts[i]);
-                if(value==-1) return -2;
-            }else if(!templateParts[i].equals(inParts[i])) return -2;
-        }
-
-        return value;
     }
 
     public static String taskStepToJson(ResultSet resultSet){
@@ -125,35 +154,6 @@ public class Utils {
         return jsonResults;
     }
 
-    public static String itemToJson(ResultSet resultSet){
-        String jsonResult = "";
-        try{
-            int id = resultSet.getInt("id");
-            String name = resultSet.getString("itemName");
-            String image = resultSet.getString("imageName");
-         
-            jsonResult = "{\"id\":" + id + ",\"name\":\"" + name + "\",\"image\":\"" + image + "\"}";
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return jsonResult;
-    }
-
-    public static String multipleItemsToJson(ResultSet resultSet){
-        String jsonResult = "";
-        ArrayList<String> itemList = new ArrayList<>();
-        try{
-            while (resultSet.next()) {
-                itemList.add(itemToJson(resultSet));
-            }
-         
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        jsonResult = "[" + String.join(",", itemList) + "]";
-        return jsonResult;
-    }
-
     public static String taskItemToJson(ResultSet resultSet){
         String jsonResult = "";
         try{
@@ -183,6 +183,36 @@ public class Utils {
             e.printStackTrace();
         }
         jsonResult = "[" + String.join(",", itemList) + "]";
+        return jsonResult;
+    }
+
+    public static String assigmentToJson(ResultSet resultSet){
+        String jsonResult = "";
+        try{
+            int id = resultSet.getInt("id");
+            int idUser = resultSet.getInt("idUser");
+            int idTask = resultSet.getInt("idTask");
+            String date = resultSet.getString("finishDate");
+         
+            jsonResult = "{\"id\":" + id + ",\"idUser\":" + idUser + ",\"idTask\":" + idTask + ",\"date\":\"" + date +  "\"}";
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return jsonResult;
+    }
+
+    public static String multipleAssignmentsToJson(ResultSet resultSet){
+        String jsonResult = "";
+        ArrayList<String> list = new ArrayList<>();
+        try{
+            while (resultSet.next()) {
+                list.add(assigmentToJson(resultSet));
+            }
+         
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        jsonResult = "[" + String.join(",", list) + "]";
         return jsonResult;
     }
 }

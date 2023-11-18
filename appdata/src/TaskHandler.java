@@ -14,7 +14,10 @@ public class TaskHandler implements HttpHandler{
         Map<String, String> jsonMap = Server.requestJson(exchange);
         if ("POST".equals(requestMethod)) {
             if(operation.action==UrlAction.TASK){
-                Server.response(exchange,200,"");
+                String title = jsonMap.get("title");
+                String desc = jsonMap.get("desc");
+                Server.updateTask(operation.id,title,desc);
+                Server.response(exchange,200,"Receive POST request at /task to update task");
             }else if(operation.action==UrlAction.NEW_TASK){
                 String title = jsonMap.get("title");
                 String desc = jsonMap.get("desc");
@@ -22,6 +25,10 @@ public class TaskHandler implements HttpHandler{
                 int id = Server.createTask(title,desc,type);
                 Server.response(exchange,200,""+id);
             }else if(operation.action==UrlAction.TASKSTEP){
+                String desc = jsonMap.get("desc");
+                String media = jsonMap.get("media");
+                int order = Server.string2id(jsonMap.get("order"));
+                Server.createTaskStep(operation.id,desc,order,media);
                 Server.response(exchange,200,"");
             }else if (operation.action==UrlAction.NEW_TASKSTEP){
                 String desc = jsonMap.get("desc");
@@ -41,13 +48,21 @@ public class TaskHandler implements HttpHandler{
                 int count = Server.string2id(jsonMap.get("count"));
                 int id = Server.createTaskItem(operation.id,item,count);
                 Server.response(exchange,200,""+id);
+            }else if(operation.action==UrlAction.TASKITEM){
+                int item = Server.string2id(jsonMap.get("item"));
+                int count = Server.string2id(jsonMap.get("count"));
+                Server.updateTaskItem(operation.id,item,count);
+                Server.response(exchange,200,"Received POST request to update task item");
+            }else if(operation.action==UrlAction.DELETE_TASKITEM){
+                Server.deleteTaskItem(operation.id);
+                Server.response(exchange,200,"Received POST request to delete task item");
             }else if(operation.action==UrlAction.TASK_ASSIGN){
                 int user = Server.string2id(jsonMap.get("user"));
                 String date = jsonMap.get("date");
                 int id = Server.createAssignment(operation.id,user,date);
                 Server.response(exchange,200,""+id);
             }else{
-                // Send a response 
+                // Send an error response 
                 Server.response(exchange,400,"Received POST request at /task with invalid format");
             }
         }else if("GET".equals(requestMethod)){
@@ -69,6 +84,9 @@ public class TaskHandler implements HttpHandler{
             }else if(operation.action==UrlAction.ALL_TASKITEMS){
                 String allItems = Utils.multipleTaskItemsToJson(Server.getTaskItemFromTask(operation.id));
                 Server.response(exchange,200,allItems);
+            }else if(operation.action==UrlAction.ALL_ASSIGNMENTS){
+                String allAsignments = Utils.multipleAssignmentsToJson(Server.getAssignments(operation.id));
+                Server.response(exchange,200,allAsignments);
             }else{
                 // Send a response 
                Server.response(exchange,400,"Received GET request at /task with invalid format");                
@@ -93,8 +111,9 @@ public class TaskHandler implements HttpHandler{
         if(Utils.compareURL(path, "/task/petition/new")!=-2) operation.set(-1,UrlAction.NEW_PETITION);
         n = Utils.compareURL(path, "/task/petition/?/item/new"); if(n!=-2) operation.set(n,UrlAction.NEW_TASKITEM);
         n = Utils.compareURL(path, "/task/petition/?/item"); if(n!=-2) operation.set(n,UrlAction.ALL_TASKITEMS);
-        n = Utils.compareURL(path, "/task/petition/item/delete/?"); if(n!=-2) operation.set(n,UrlAction.DELETE_TASKITEM);//TODO
+        n = Utils.compareURL(path, "/task/petition/item/delete/?"); if(n!=-2) operation.set(n,UrlAction.DELETE_TASKITEM);
         n = Utils.compareURL(path, "/task/?/assign"); if(n!=-2) operation.set(n,UrlAction.TASK_ASSIGN);
+        n = Utils.compareURL(path, "/task/user/?"); if(n!=-2) operation.set(n,UrlAction.ALL_ASSIGNMENTS);
 
         return operation;
     }
