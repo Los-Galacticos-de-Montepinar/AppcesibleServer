@@ -1,5 +1,8 @@
 import java.util.ArrayList;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+
 
 public class Utils {
 
@@ -31,7 +34,7 @@ public class Utils {
          
             jsonResults = "\"id\":" + id + ",\"userName\":\"" + name + "\",\"pfp\":" + pfp +  ",\"userType\":" + userType +  ",\"idClass\":" + idClass;
 
-            if(userType == 1){
+            if(userType == 1 && hasColumn(resultSet, "letterSize")){
                 int letterSize = resultSet.getInt("letterSize");
                 // TODO devolver el tipo de login
                 // int loginType = resultSet.getInt("loginType");
@@ -214,5 +217,16 @@ public class Utils {
         }
         jsonResult = "[" + String.join(",", list) + "]";
         return jsonResult;
+    }
+
+    public static boolean hasColumn(ResultSet rs, String columnName) throws SQLException {
+        ResultSetMetaData rsmd = rs.getMetaData();
+        int columns = rsmd.getColumnCount();
+        for (int x = 1; x <= columns; x++) {
+            if (columnName.equals(rsmd.getColumnName(x))) {
+                return true;
+            }
+        }
+        return false;
     }
 }
