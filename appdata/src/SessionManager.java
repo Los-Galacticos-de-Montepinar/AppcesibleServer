@@ -3,16 +3,16 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class SessionManager {
-    private static Map<String, Integer> sessionTokenToUser = new HashMap<>();
+    private static Map<String, Session> sessionTokenToUser = new HashMap<>();
     
-    public static String createSessionToken(int userId) {
+    public static String createSessionToken(int userId,String key) {
         String sessionToken = UUID.randomUUID().toString();
-        sessionTokenToUser.put(sessionToken, userId);
+        sessionTokenToUser.put(sessionToken, new Session(userId, Encrypt.getKeyFromString(key)));
         return sessionToken;
     }
     
     public static int getUserFromSessionToken(String sessionToken) {
-        return sessionTokenToUser.get(sessionToken);
+        return sessionTokenToUser.get(sessionToken).getId();
     }
     
     public static boolean invalidateSessionToken(String sessionToken) {
@@ -20,8 +20,8 @@ public class SessionManager {
     }
 
     public static String findSessionTokenByUser(int userId) {
-        for (Map.Entry<String, Integer> entry : sessionTokenToUser.entrySet()) {
-            if (entry.getValue() == userId) {
+        for (Map.Entry<String, Session> entry : sessionTokenToUser.entrySet()) {
+            if (entry.getValue().getId() == userId) {
                 return entry.getKey();
             }
         }

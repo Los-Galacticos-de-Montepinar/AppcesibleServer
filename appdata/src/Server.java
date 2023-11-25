@@ -19,7 +19,7 @@ public class Server {
     private static Connection connection = null;
 
     // Login
-    public static String authenticate(String inputName,String inputPassword){
+    public static String authenticate(String inputName,String inputPassword,String key){
         System.out.println("authenticating...");
         String token = "";
         try {
@@ -31,7 +31,7 @@ public class Server {
             if(inputPassword.equals(password)){
                 token = SessionManager.findSessionTokenByUser(id);
                 if(token == null){
-                    token = SessionManager.createSessionToken(id);
+                    token = SessionManager.createSessionToken(id,key);
                 }
             }
 
@@ -41,7 +41,7 @@ public class Server {
         return token;
     }
 
-    public static String authenticate(String inputName,String inputPass0,String inputPass1,String inputPass2){
+    public static String authenticate(String inputName,String inputPass0,String inputPass1,String inputPass2,String key){
         System.out.println("authenticating...");
         String token = "";
         try {
@@ -81,8 +81,8 @@ public class Server {
 
             if(passCount==3){
                 token = SessionManager.findSessionTokenByUser(id);
-                if(token == null){
-                    token = SessionManager.createSessionToken(id);
+                if(token == null && key != null){
+                    token = SessionManager.createSessionToken(id,key);
                 }
             }
 

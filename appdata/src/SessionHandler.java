@@ -15,6 +15,7 @@ public class SessionHandler implements HttpHandler{
         if ("POST".equals(requestMethod)) {
             if(operation.action == UrlAction.LOGIN){
                 String name = jsonMap.get("userName");
+                String key = jsonMap.get("publicKey");
                 String token = "";
 
                 int authenticationMethod = Server.getAuthenticationMethod(name);
@@ -22,7 +23,7 @@ public class SessionHandler implements HttpHandler{
                 switch(authenticationMethod){
                 case 0:
                     String password = jsonMap.get("passwd");
-                    token = Server.authenticate(name,password);
+                    token = Server.authenticate(name,password,key);
                     if(!token.equals("")){
                         Server.response(exchange, 200, token);
                     }else{
@@ -34,7 +35,7 @@ public class SessionHandler implements HttpHandler{
                     String passwordPart1 = jsonMap.get("passPart1");
                     String passwordPart2 = jsonMap.get("passPart2");
 
-                    token = Server.authenticate(name,passwordPart0,passwordPart1,passwordPart2);
+                    token = Server.authenticate(name,passwordPart0,passwordPart1,passwordPart2,key);
 
                     if(token.equals("0")){
                         Server.response(exchange, 202, token);
@@ -60,11 +61,23 @@ public class SessionHandler implements HttpHandler{
                 }else{
                     Server.response(exchange, 401, "Incorrect token");
                 }
+            }else if(operation.action == UrlAction.TEST){
+                String encryptedData = jsonMap.get("data");
+                String decryptedData = Encrypt.decrypt(encryptedData);
+                System.out.println(decryptedData);
+                Server.response(exchange,200,decryptedData);
             } else{
                 // Send a response 
                 Server.response(exchange,400,"Received POST request at /session with invalid format");
             }
-        }else {
+        }else if ("GET".equals(requestMethod)) {
+            if(operation.action == UrlAction.PUBLICKEY){
+                Server.response(exchange, 200, Encrypt.getPublicString());
+            }else{
+                // Send a response 
+                Server.response(exchange,400,"Received GET request at /session with invalid format");
+            }
+        }else{
             // Handle other HTTP methods or provide an error response
             Server.response(exchange,405,"Unsupported HTTP method");
         }
@@ -75,6 +88,9 @@ public class SessionHandler implements HttpHandler{
 
         if(Utils.compareURL(path, "/session/login")!=-2) operation.set(-1,UrlAction.LOGIN);
         if(Utils.compareURL(path, "/session/logout")!=-2) operation.set(-1,UrlAction.LOGOUT);
+        if(Utils.compareURL(path, "/session/public")!=-2) operation.set(-1,UrlAction.PUBLICKEY);
+        if(Utils.compareURL(path, "/session/test")!=-2) operation.set(-1,UrlAction.TEST);// ! TOREMOVE
+
 
         return operation;
     }
