@@ -12,7 +12,6 @@ public class UserHandler implements HttpHandler {
         String requestMethod = exchange.getRequestMethod();
 
         UrlOperation operation = analizeUrl(exchange.getRequestURI().getPath());
-        System.out.println(operation.action);
         if ("POST".equals(requestMethod)) {
             if(operation.action == UrlAction.USER){
                 // Parse the JSON payload manually

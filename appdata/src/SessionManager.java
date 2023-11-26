@@ -5,9 +5,9 @@ import java.util.UUID;
 public class SessionManager {
     private static Map<String, Session> sessionTokenToUser = new HashMap<>();
     
-    public static String createSessionToken(int userId,String key) {
+    public static String createSessionToken(int userId,byte[] key) {
         String sessionToken = UUID.randomUUID().toString();
-        sessionTokenToUser.put(sessionToken, new Session(userId, Encrypt.getKeyFromString(key)));
+        sessionTokenToUser.put(sessionToken, new Session(userId, Encrypt.getKeyFromBytes(key)));
         return sessionToken;
     }
     

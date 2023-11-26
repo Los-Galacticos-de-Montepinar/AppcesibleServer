@@ -23,7 +23,7 @@ public class SessionHandler implements HttpHandler{
                 switch(authenticationMethod){
                 case 0:
                     String password = jsonMap.get("passwd");
-                    token = Server.authenticate(name,password,key);
+                    token = Server.authenticate(name,password,key.getBytes());
                     if(!token.equals("")){
                         Server.response(exchange, 200, token);
                     }else{
@@ -35,7 +35,7 @@ public class SessionHandler implements HttpHandler{
                     String passwordPart1 = jsonMap.get("passPart1");
                     String passwordPart2 = jsonMap.get("passPart2");
 
-                    token = Server.authenticate(name,passwordPart0,passwordPart1,passwordPart2,key);
+                    token = Server.authenticate(name,passwordPart0,passwordPart1,passwordPart2,key.getBytes());
 
                     if(token.equals("0")){
                         Server.response(exchange, 202, token);
@@ -62,8 +62,8 @@ public class SessionHandler implements HttpHandler{
                     Server.response(exchange, 401, "Incorrect token");
                 }
             }else if(operation.action == UrlAction.TEST){
-                String encryptedData = jsonMap.get("data");
-                String decryptedData = Encrypt.decrypt(encryptedData);
+                // String encryptedData = jsonMap.get("data");
+                String decryptedData = Encrypt.decrypt(Server.requestBinary(exchange));
                 System.out.println(decryptedData);
                 Server.response(exchange,200,decryptedData);
             } else{
@@ -72,7 +72,9 @@ public class SessionHandler implements HttpHandler{
             }
         }else if ("GET".equals(requestMethod)) {
             if(operation.action == UrlAction.PUBLICKEY){
-                Server.response(exchange, 200, Encrypt.getPublicString());
+                System.out.println("sending public key");
+                byte[] bytes = Encrypt.getPublicBytes();
+                Server.response(exchange, 200,bytes,bytes.length );
             }else{
                 // Send a response 
                 Server.response(exchange,400,"Received GET request at /session with invalid format");

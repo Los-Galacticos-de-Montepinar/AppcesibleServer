@@ -3,7 +3,10 @@ import com.sun.net.httpserver.HttpExchange;
 
 import java.net.InetSocketAddress;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Map;
@@ -19,7 +22,7 @@ public class Server {
     private static Connection connection = null;
 
     // Login
-    public static String authenticate(String inputName,String inputPassword,String key){
+    public static String authenticate(String inputName,String inputPassword,byte[] key){
         System.out.println("authenticating...");
         String token = "";
         try {
@@ -41,7 +44,7 @@ public class Server {
         return token;
     }
 
-    public static String authenticate(String inputName,String inputPass0,String inputPass1,String inputPass2,String key){
+    public static String authenticate(String inputName,String inputPass0,String inputPass1,String inputPass2,byte[] key){
         System.out.println("authenticating...");
         String token = "";
         try {
@@ -660,6 +663,28 @@ public class Server {
         return parseJson(requestBody.toString());
     }
 
+    public static byte[] requestBinary(HttpExchange exchange){
+        InputStream inputStream = exchange.getRequestBody();
+
+        // Read bytes from the input stream
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        // Use a ByteArrayOutputStream to collect the binary data
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        try {
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                byteArrayOutputStream.write(buffer, 0, bytesRead);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        // Get the binary data as a byte array
+        return byteArrayOutputStream.toByteArray();
+    }
+
     // string to id
     public static int string2id(String string){
         try{
@@ -670,10 +695,51 @@ public class Server {
     }
 
     public static void response(HttpExchange exchange, int code, String response){
+        // try {
+        //     exchange.sendResponseHeaders(code, response.length());
+        //     OutputStream os = exchange.getResponseBody();
+        //     os.write(response.getBytes());
+        //     os.close();
+        // } catch (IOException e) {
+        //     System.out.println("response");
+        //     e.printStackTrace();
+        // }
         try {
+            ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
             exchange.sendResponseHeaders(code, response.length());
             OutputStream os = exchange.getResponseBody();
-            os.write(response.getBytes());
+            int BUFFER_SIZE = 64;
+            byte [] buffer = new byte [BUFFER_SIZE];
+            int count ;
+            while ((count = bis.read(buffer)) != -1) {
+                os.write(buffer, 0, count);
+            }
+            os.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void response(HttpExchange exchange, int code, byte[] response,int length){
+        // try {
+        //     exchange.sendResponseHeaders(code, response.length());
+        //     OutputStream os = exchange.getResponseBody();
+        //     os.write(response.getBytes());
+        //     os.close();
+        // } catch (IOException e) {
+        //     System.out.println("response");
+        //     e.printStackTrace();
+        // }
+        try {
+            ByteArrayInputStream bis = new ByteArrayInputStream(response);
+            exchange.sendResponseHeaders(code, length);
+            OutputStream os = exchange.getResponseBody();
+            int BUFFER_SIZE = 64;
+            byte [] buffer = new byte [BUFFER_SIZE];
+            int count ;
+            while ((count = bis.read(buffer)) != -1) {
+                os.write(buffer, 0, count);
+            }
             os.close();
         } catch (IOException e) {
             e.printStackTrace();
