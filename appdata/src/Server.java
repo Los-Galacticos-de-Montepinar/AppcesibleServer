@@ -706,6 +706,7 @@ public class Server {
         // }
         try {
             ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
+            exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.sendResponseHeaders(code, response.length());
             OutputStream os = exchange.getResponseBody();
             int BUFFER_SIZE = 64;
@@ -732,6 +733,7 @@ public class Server {
         // }
         try {
             ByteArrayInputStream bis = new ByteArrayInputStream(response);
+            exchange.getResponseHeaders().set("Content-Type", "application/octet-stream");
             exchange.sendResponseHeaders(code, length);
             OutputStream os = exchange.getResponseBody();
             int BUFFER_SIZE = 64;
