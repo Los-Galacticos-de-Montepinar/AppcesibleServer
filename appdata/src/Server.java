@@ -673,10 +673,15 @@ public class Server {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
         try {
+			int totalBytes = 0;
             while ((bytesRead = inputStream.read(buffer)) != -1) {
+				System.out.println("BUFF - " + buffer);
                 byteArrayOutputStream.write(buffer, 0, bytesRead);
+				totalBytes += bytesRead;
             }
+			System.out.println("READ - " + bytesRead);
         } catch (IOException e) {
+			System.out.println("EXCEPT");
             e.printStackTrace();
             return null;
         }

@@ -23,7 +23,7 @@ public class Encrypt {
         if(pair==null){
             try {
                 generator = KeyPairGenerator.getInstance("RSA");
-                generator.initialize(2048);
+                generator.initialize(256);
                 pair = generator.generateKeyPair();
                 return pair.getPublic();
             } catch (NoSuchAlgorithmException e) {

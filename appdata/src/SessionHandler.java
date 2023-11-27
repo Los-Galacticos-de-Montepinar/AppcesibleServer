@@ -3,6 +3,7 @@ import com.sun.net.httpserver.HttpExchange;
 
 import java.util.Map;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class SessionHandler implements HttpHandler{
     @Override
@@ -11,9 +12,10 @@ public class SessionHandler implements HttpHandler{
         String requestMethod = exchange.getRequestMethod();
 
         UrlOperation operation = analizeUrl(exchange.getRequestURI().getPath());
-        Map<String, String> jsonMap = Server.requestJson(exchange);
+        //
         if ("POST".equals(requestMethod)) {
             if(operation.action == UrlAction.LOGIN){
+				Map<String, String> jsonMap = Server.requestJson(exchange);
                 String name = jsonMap.get("userName");
                 String key = jsonMap.get("publicKey");
                 String token = "";
@@ -49,12 +51,8 @@ public class SessionHandler implements HttpHandler{
                     Server.response(exchange, 401, "User does not exist");
                     break;
                 }
-
-
-
-
-
             }else if(operation.action == UrlAction.LOGOUT){
+				Map<String, String> jsonMap = Server.requestJson(exchange);
                 String token = jsonMap.get("sessionToken");
                 if(SessionManager.invalidateSessionToken(token)){
                     Server.response(exchange, 200, "Logout");
@@ -62,8 +60,11 @@ public class SessionHandler implements HttpHandler{
                     Server.response(exchange, 401, "Incorrect token");
                 }
             }else if(operation.action == UrlAction.TEST){
-                // String encryptedData = jsonMap.get("data");
-                String decryptedData = Encrypt.decrypt(Server.requestBinary(exchange));
+                //String encryptedData = jsonMap.get("data");
+				//System.out.println("DATA - " + encryptedData);
+				byte[] data = Server.requestBinary(exchange);
+                System.out.println("DATA - " + data);
+				String decryptedData = Encrypt.decrypt(data);
                 System.out.println(decryptedData);
                 Server.response(exchange,200,decryptedData);
             } else{
