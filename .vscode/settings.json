@@ -1,0 +1,7 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "appdata/class/bcpkix-jdk18on-177.jar",
+        "appdata/class/bcprov-ext-jdk18on-177.jar"
+    ]
+}

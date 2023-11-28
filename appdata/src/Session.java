@@ -12,7 +12,7 @@ public class Session {
         return id;
     }
 
-    public byte[] encrypt(String data){
+    public String encrypt(String data){
         return Encrypt.encrypt(data, publicKey);
     }
 }

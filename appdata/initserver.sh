@@ -11,11 +11,11 @@ fi
 sleep 1
 
 # Compilar el servidor
-javac src/*.java -d ./class
+javac -cp ".:class/*" src/*.java -d ./class
 
 # Lanzar servidor
 cd class
-java -classpath ".:sqlite-jdbc-3.43.2.1.jar:slf4j-api-1.7.36.jar" Server &
+java -classpath ".:*" Server &
 cd ..
 
 # Guardar PID del servidor

@@ -3,6 +3,7 @@ import com.sun.net.httpserver.HttpExchange;
 
 import java.util.Map;
 import java.io.IOException;
+import java.security.PublicKey;
 
 public class SessionHandler implements HttpHandler{
     @Override
@@ -27,7 +28,7 @@ public class SessionHandler implements HttpHandler{
                     if(!token.equals("")){
                         Server.response(exchange, 200, token);
                     }else{
-                        Server. response(exchange, 401, "Incorrect username or password");
+                        Server.response(exchange, 401, "Incorrect username or password");
                     }
                     break;
                 case 1:
@@ -50,10 +51,6 @@ public class SessionHandler implements HttpHandler{
                     break;
                 }
 
-
-
-
-
             }else if(operation.action == UrlAction.LOGOUT){
                 String token = jsonMap.get("sessionToken");
                 if(SessionManager.invalidateSessionToken(token)){
@@ -66,7 +63,23 @@ public class SessionHandler implements HttpHandler{
                 String decryptedData = Encrypt.decrypt(Server.requestBinary(exchange));
                 System.out.println(decryptedData);
                 Server.response(exchange,200,decryptedData);
-            } else{
+            }else if(operation.action == UrlAction.PUBLICKEY){
+                System.out.println("received public key");
+                String pem = jsonMap.get("pem");
+                System.out.println("pem obtained");
+                String message = "message";
+                try{
+                    PublicKey key = Encrypt.publicKeyFromPEM(pem);
+                    System.out.println("public key translated");
+                    message = Encrypt.encrypt("Hello world", key);
+                    System.out.println("message encripted");
+                }catch(IOException e){
+                    e.printStackTrace();
+                }
+
+                Server.response(exchange, 200,message);
+                System.out.println("Response sended");
+            }else{
                 // Send a response 
                 Server.response(exchange,400,"Received POST request at /session with invalid format");
             }
@@ -92,7 +105,6 @@ public class SessionHandler implements HttpHandler{
         if(Utils.compareURL(path, "/session/logout")!=-2) operation.set(-1,UrlAction.LOGOUT);
         if(Utils.compareURL(path, "/session/public")!=-2) operation.set(-1,UrlAction.PUBLICKEY);
         if(Utils.compareURL(path, "/session/test")!=-2) operation.set(-1,UrlAction.TEST);// ! TOREMOVE
-
 
         return operation;
     }
