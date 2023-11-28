@@ -37,9 +37,9 @@ public class UserHandler implements HttpHandler {
                     } 
 
                     // Send a response 
-                    Server.response(exchange, 200, "Received POST request at /user/"+operation.id+ " to update user");
+                    Server.response(exchange, 200, "Received POST request at /user/"+operation.id+ " to update user",false);
                 } else {
-                    Server.response(exchange, 400, "Received POST request with invalid format");
+                    Server.response(exchange, 400, "Received POST request with invalid format",false);
                 }
 
             } else if(operation.action == UrlAction.NEW_USER){
@@ -73,49 +73,49 @@ public class UserHandler implements HttpHandler {
                 Server.createLoginInfo(userId,loginType,textPass,passPart0,passPart1,passPart2);
 
                 // Send a response 
-                Server.response(exchange, 200, "Received POST request at /user/new to create new user");
+                Server.response(exchange, 200, "Received POST request at /user/new to create new user", false);
             } else if (operation.action == UrlAction.DELETE_USER){
                 Server.deleteUser(operation.id);
-                Server.response(exchange, 200, "Received POST request at /user/delete/"+operation.id+" to delete user");
+                Server.response(exchange, 200, "Received POST request at /user/delete/"+operation.id+" to delete user", false);
             } else {
                 // Send a response 
-                Server.response(exchange,400,"Received POST request at /user with invalid format");
+                Server.response(exchange,400,"Received POST request at /user with invalid format", false);
             }
         } else if ("GET".equals(requestMethod)) {
             // ! Tengo que hacer un switch pero me da pereza
             if(operation.action==UrlAction.USER){
                 // Get user
                 String user = Utils.userToJson(Server.getUser(operation.id));
-                Server.response(exchange, 200, user);
+                Server.response(exchange, 200, user,true);
             }else if(operation.action==UrlAction.STUDENT){
                 // Get student
                 String user = Utils.userToJson(Server.getStudent(operation.id));
-                Server.response(exchange, 200, user);
+                Server.response(exchange, 200, user,true);
             }else if(operation.action==UrlAction.TEACHER){
                 // Get teacher
                 String user = Utils.userToJson(Server.getUser(operation.id));
-                Server.response(exchange, 200, user);
+                Server.response(exchange, 200, user,true);
             }else if(operation.action==UrlAction.ALL_USERS){
                 // Get all users
                 String allUsers = Utils.multipleUsersToJson(Server.getAllUsers(-1));
-                Server.response(exchange, 200, allUsers);
+                Server.response(exchange, 200, allUsers,true);
             }else if(operation.action==UrlAction.ALL_STUDENTS){
                 // Get all students
                 String allUsers = Utils.multipleUsersToJson(Server.getAllStudents());
-                Server.response(exchange, 200, allUsers);
+                Server.response(exchange, 200, allUsers,true);
             }else if(operation.action==UrlAction.ALL_TEACHERS){
                 // Get all teachers
                 String allUsers = Utils.multipleUsersToJson(Server.getAllUsers(0));
-                Server.response(exchange, 200, allUsers);
+                Server.response(exchange, 200, allUsers,true);
             }
             else{
                 // Send a response 
-               Server.response(exchange,400,"Received GET request at /user with invalid format");
+               Server.response(exchange,400,"Received GET request at /user with invalid format", false);
             }
             
         } else {
             // Handle other HTTP methods or provide an error response
-            Server.response(exchange,405,"Unsupported HTTP method");
+            Server.response(exchange,405,"Unsupported HTTP method", false);
         }
     }
 

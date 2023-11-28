@@ -18,35 +18,35 @@ public class ItemHandler implements HttpHandler {
                 String newName = jsonMap.get("name");
                 String newImage = jsonMap.get("image");
                 Server.createItem(newName, newImage);
-                Server.response(exchange,200,"Received POST request at /item/new to create item");         
+                Server.response(exchange,200,"Received POST request at /item/new to create item", false);         
                 break;
             case ITEM:
                 String name = jsonMap.get("name");
                 String image = jsonMap.get("image");
                 Server.updateItem(operation.id, name, image);
-                Server.response(exchange, 200, "Received POST request at /item/new to update item");
+                Server.response(exchange, 200, "Received POST request at /item/new to update item", false);
                 break;
             default:
-                Server.response(exchange, 400, "Received POST request with invalid format");
+                Server.response(exchange, 400, "Received POST request with invalid format", false);
                 break;
             }
         }else if("GET".equals(requestMethod)){
             switch(operation.action){
             case ALL_ITEMS:
                 String items = Utils.multipleItemsToJson(Server.getAllItems());
-                Server.response(exchange, 200, items);
+                Server.response(exchange, 200, items,true);
                 break;
             case ITEM:
                 String item = Utils.itemToJson(Server.getItem(operation.id));
-                Server.response(exchange, 200, item);
+                Server.response(exchange, 200, item,true);
                 break;
             default:
-                Server.response(exchange, 400, "Received GET request with invalid format");
+                Server.response(exchange, 400, "Received GET request with invalid format", false);
                 break;
             }
         }else{
             // Handle other HTTP methods or provide an error response
-            Server.response(exchange,405,"Unsupported HTTP method");           
+            Server.response(exchange,405,"Unsupported HTTP method", false);           
         }
     }
 

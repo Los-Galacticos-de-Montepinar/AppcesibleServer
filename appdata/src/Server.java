@@ -699,7 +699,7 @@ public class Server {
         }
     }
 
-    public static void response(HttpExchange exchange, int code, String response){
+    public static void response(HttpExchange exchange, int code, String response, boolean isJson){
         // try {
         //     exchange.sendResponseHeaders(code, response.length());
         //     OutputStream os = exchange.getResponseBody();
@@ -711,7 +711,8 @@ public class Server {
         // }
         try {
             ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
-            exchange.getResponseHeaders().set("Content-Type", "application/json");
+            if (isJson) exchange.getResponseHeaders().set("Content-Type", "application/json");
+			else exchange.getResponseHeaders().set("Content-Type", "text/plain");
             exchange.sendResponseHeaders(code, response.length());
             OutputStream os = exchange.getResponseBody();
             int BUFFER_SIZE = 64;

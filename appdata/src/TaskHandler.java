@@ -17,83 +17,83 @@ public class TaskHandler implements HttpHandler{
                 String title = jsonMap.get("title");
                 String desc = jsonMap.get("desc");
                 Server.updateTask(operation.id,title,desc);
-                Server.response(exchange,200,"Receive POST request at /task to update task");
+                Server.response(exchange,200,"Receive POST request at /task to update task",false);
             }else if(operation.action==UrlAction.NEW_TASK){
                 String title = jsonMap.get("title");
                 String desc = jsonMap.get("desc");
                 int type = 0;
                 int id = Server.createTask(title,desc,type);
-                Server.response(exchange,200,""+id);
+                Server.response(exchange,200,""+id,false);
             }else if(operation.action==UrlAction.TASKSTEP){
                 String desc = jsonMap.get("desc");
                 String media = jsonMap.get("media");
                 int order = Server.string2id(jsonMap.get("order"));
                 Server.createTaskStep(operation.id,desc,order,media);
-                Server.response(exchange,200,"");
+                Server.response(exchange,200,"",false);
             }else if (operation.action==UrlAction.NEW_TASKSTEP){
                 String desc = jsonMap.get("desc");
                 String media = jsonMap.get("media");
                 int order = Server.string2id(jsonMap.get("order"));
                 int idTask = Server.string2id(jsonMap.get("taskId"));
                 Server.createTaskStep(idTask,desc,order,media);
-                Server.response(exchange,200,"Created step");
+                Server.response(exchange,200,"Created step",false);
             }else if(operation.action==UrlAction.NEW_PETITION){
                 String title = jsonMap.get("title");
                 String desc = jsonMap.get("desc");
                 int type = 1;
                 int id = Server.createTask(title,desc,type);
-                Server.response(exchange,200,""+id);
+                Server.response(exchange,200,""+id,false);
             }else if(operation.action==UrlAction.NEW_TASKITEM){
                 int item = Server.string2id(jsonMap.get("item"));
                 int count = Server.string2id(jsonMap.get("count"));
                 int id = Server.createTaskItem(operation.id,item,count);
-                Server.response(exchange,200,""+id);
+                Server.response(exchange,200,""+id,false);
             }else if(operation.action==UrlAction.TASKITEM){
                 int item = Server.string2id(jsonMap.get("item"));
                 int count = Server.string2id(jsonMap.get("count"));
                 Server.updateTaskItem(operation.id,item,count);
-                Server.response(exchange,200,"Received POST request to update task item");
+                Server.response(exchange,200,"Received POST request to update task item",false);
             }else if(operation.action==UrlAction.DELETE_TASKITEM){
                 Server.deleteTaskItem(operation.id);
-                Server.response(exchange,200,"Received POST request to delete task item");
+                Server.response(exchange,200,"Received POST request to delete task item",false);
             }else if(operation.action==UrlAction.TASK_ASSIGN){
                 int user = Server.string2id(jsonMap.get("user"));
                 String date = jsonMap.get("date");
                 int id = Server.createAssignment(operation.id,user,date);
-                Server.response(exchange,200,""+id);
+                Server.response(exchange,200,""+id,false);
             }else{
                 // Send an error response 
-                Server.response(exchange,400,"Received POST request at /task with invalid format");
+                Server.response(exchange,400,"Received POST request at /task with invalid format",false);
             }
         }else if("GET".equals(requestMethod)){
             if(operation.action==UrlAction.TASK){
                 String task = Utils.taskToJson(Server.getTask(operation.id));
-                Server.response(exchange,200,task);
+                Server.response(exchange,200,task,true);
             }else if(operation.action==UrlAction.ALL_TASKS){
                 String allTasks = Utils.multipleTasksToJson(Server.getAllTasks());
-                Server.response(exchange,200,allTasks);
+                Server.response(exchange,200,allTasks,true);
             }else if(operation.action==UrlAction.TASKSTEP){
                 String step = Utils.taskStepToJson(Server.getTaskStep(operation.id));
-                Server.response(exchange,200,step);
+                Server.response(exchange,200,step,true);
             }else if(operation.action==UrlAction.ALL_TASKSTEPS){
                 String allSteps = Utils.multipleTaskStepsToJson(Server.getTaskStepsFromTask(operation.id));
-                Server.response(exchange,200,allSteps);
+                Server.response(exchange,200,allSteps,true);
             }else if(operation.action==UrlAction.TASKITEM){
                 String item = Utils.taskItemToJson(Server.getTaskItemFromTask(operation.id));
-                Server.response(exchange,200,item);
+                Server.response(exchange,200,item,true);
             }else if(operation.action==UrlAction.ALL_TASKITEMS){
                 String allItems = Utils.multipleTaskItemsToJson(Server.getTaskItemFromTask(operation.id));
-                Server.response(exchange,200,allItems);
+                Server.response(exchange,200,allItems,true);
             }else if(operation.action==UrlAction.ALL_ASSIGNMENTS){
                 String allAsignments = Utils.multipleAssignmentsToJson(Server.getAssignments(operation.id));
-                Server.response(exchange,200,allAsignments);
+                Server.response(exchange,200,allAsignments,true);
             }else{
                 // Send a response 
-               Server.response(exchange,400,"Received GET request at /task with invalid format");                
+               Server.response(exchange,400,"Received GET request at /task with invalid format",false);                
             }
         }else {
             // Handle other HTTP methods or provide an error response
-            Server.response(exchange,405,"Unsupported HTTP method");
+            Server.response(exchange,405,"Unsupported HTTP method",false);
         }
     }
 

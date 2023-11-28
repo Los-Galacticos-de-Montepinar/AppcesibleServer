@@ -8,7 +8,6 @@ import java.security.PublicKey;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -23,7 +22,7 @@ public class Encrypt {
         if(pair==null){
             try {
                 generator = KeyPairGenerator.getInstance("RSA");
-                generator.initialize(256);
+                generator.initialize(2048);
                 pair = generator.generateKeyPair();
                 return pair.getPublic();
             } catch (NoSuchAlgorithmException e) {
@@ -53,8 +52,11 @@ public class Encrypt {
         genKeys();
         try {
             Cipher decryCipher = Cipher.getInstance("RSA");
+			System.out.println("decryCipher");
             decryCipher.init(Cipher.DECRYPT_MODE, pair.getPrivate());
+			System.out.println("init");
             byte[] decryptedData = decryCipher.doFinal(data);
+			System.out.println("decrypted");
             return new String(decryptedData,StandardCharsets.UTF_8);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
             e.printStackTrace();
