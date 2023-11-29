@@ -571,9 +571,13 @@ public class Server {
             PreparedStatement studentStatement = connection.prepareStatement("DELETE FROM student WHERE idUser=?");
             studentStatement.setInt(1,id);
             studentStatement.executeUpdate();
+
             PreparedStatement loginStatement = connection.prepareStatement("DELETE FROM loginInfo WHERE idUser=?");
             loginStatement.setInt(1,id);
             loginStatement.executeUpdate();
+            PreparedStatement taskStatement = connection.prepareStatement("DELETE FROM taskAssignment WHERE idUser=?");
+            taskStatement.setInt(1, id);
+            taskStatement.executeUpdate();
         }catch(SQLException e){
             e.printStackTrace();
         }

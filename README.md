@@ -64,10 +64,15 @@ Obtener todos los estudiantes
 ```sh
 curl -i -X GET http://localhost:8080/user/student
 ```
+Eliminar usuario con ID = 1
+```sh
+curl -i -X POST http://localhost:8080/user/delete/1
+```
 Los tipos de usuario son los siguientes
 - 0 profesor
 - 1 estudiante
 - 2 administrador
+
 
 ### Task
 

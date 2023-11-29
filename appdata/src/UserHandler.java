@@ -128,8 +128,8 @@ public class UserHandler implements HttpHandler {
         n = Utils.compareURL(path, "/user/?"); if(n!=-2) operation.set(n,UrlAction.USER);
         if(Utils.compareURL(path, "/user/student")!=-2) operation.set(-1,UrlAction.ALL_STUDENTS);
         if(Utils.compareURL(path, "/user/teacher")!=-2) operation.set(-1,UrlAction.ALL_TEACHERS);
-        n = Utils.compareURL(path, "/user/delete/?"); if(n!=-2) operation.set(-1,UrlAction.DELETE_USER);
-        if(Utils.compareURL(path, "/user/new")!=-2) operation.set(n,UrlAction.NEW_USER);
+        n = Utils.compareURL(path, "/user/delete/?"); if(n!=-2) operation.set(n,UrlAction.DELETE_USER);
+        if(Utils.compareURL(path, "/user/new")!=-2) operation.set(-1,UrlAction.NEW_USER);
         n = Utils.compareURL(path, "/user/student/?"); if(n!=-2) operation.set(n,UrlAction.STUDENT);
         n = Utils.compareURL(path, "/user/teacher/?"); if(n!=-2) operation.set(n,UrlAction.TEACHER);
 
