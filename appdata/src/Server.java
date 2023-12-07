@@ -1,7 +1,9 @@
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.Headers;
 
 import java.net.InetSocketAddress;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,7 +12,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Map;
+
+import javax.swing.event.MenuKeyEvent;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -44,6 +51,7 @@ public class Server {
         return token;
     }
 
+    // Authenticate using images
     public static String authenticate(String inputName,String inputPass0,String inputPass1,String inputPass2,byte[] key){
         System.out.println("authenticating...");
         String token = "";
@@ -95,6 +103,7 @@ public class Server {
         return token;
     }
 
+    // Get authetication methon from BD using username
     public static int getAuthenticationMethod(String inputName){
         int method = -1;
         try {
@@ -402,6 +411,7 @@ public class Server {
         return resultSet;
     }
 
+    // Update item in the BD
     public static void updateItem(int id, String name, String image){
         try {
             if(name!=null){
@@ -620,6 +630,35 @@ public class Server {
         }
     }
 
+    // Create bitmap image in the BD
+    public static void createImage(String filename,byte[] data){
+        System.out.println("Creating image...");
+        try{
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO gallery (id,imageType,imageUrl,imageData,imageDesc) VALUES (NULL,0,NULL,?,?);");
+            statement.setObject(1, data);
+            statement.setString(2, filename);
+
+            statement.executeUpdate();
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    // Get media from BD
+    public static ResultSet getImage(int id){
+        System.out.println("getting image...");
+        ResultSet resultSet = null;
+        PreparedStatement statement;
+        try {
+            statement = connection.prepareStatement("SELECT * FROM gallery WHERE id = ?");
+            statement.setInt(1, id);
+            resultSet = statement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultSet;
+    }
+
     // Create loginInfo in the BD
     public static void createLoginInfo(int userId,int method,String textPass,String passPart0,String passPart1,String passPart2){
         System.out.println("Creating loginInfo...");
@@ -637,6 +676,10 @@ public class Server {
             e.printStackTrace();
         }
     }
+
+    //--------------------------------------------------------------------------------
+    // Server Utils
+    //--------------------------------------------------------------------------------
 
     public static Map<String, String> parseJson(String json) {
         Map<String, String> jsonMap = new HashMap<>();
@@ -689,6 +732,44 @@ public class Server {
         return byteArrayOutputStream.toByteArray();
     }
 
+    public static String getBoundary(Headers headers){  
+        String contentType = headers.getFirst("Content-type");
+        String boundary = contentType.split(";")[1].replace("boundary=", "").replace(" ", "");
+        return boundary;
+    }
+
+    public static ArrayList<MultipartSection> getSections(HttpExchange exchange){
+        String boundary = getBoundary(exchange.getRequestHeaders());
+        // BufferedReader reader = new BufferedReader(new InputStreamReader(exchange.getRequestBody()));
+        ArrayList<MultipartSection> sections = new ArrayList<MultipartSection>();
+
+        // Read from the input
+        BufferedInputStream reader = new BufferedInputStream(exchange.getRequestBody());
+        ByteArrayOutputStream ous = new ByteArrayOutputStream();
+        try {
+            byte[] buffer = new byte[32];
+            while (reader.read(buffer)!= -1) {
+                ous.write(buffer, 0, 32);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        byte[] data = ous.toByteArray();
+
+        // Separate the contents
+        ArrayList<byte[]> bodyParts = Utils.splitByteArray(data, "--"+boundary+"--");
+        ArrayList<byte[]> contentParts = Utils.splitByteArray(bodyParts.get(0), "--"+boundary+"");
+
+        for(int i = 0 ; i < contentParts.size();i++){
+            if(contentParts.get(i).length>4){
+                sections.add(new MultipartSection(contentParts.get(i)));
+            }
+        }
+
+        return sections;
+    }
+
     // string to id
     public static int string2id(String string){
         try{
@@ -699,15 +780,6 @@ public class Server {
     }
 
     public static void response(HttpExchange exchange, int code, String response){
-        // try {
-        //     exchange.sendResponseHeaders(code, response.length());
-        //     OutputStream os = exchange.getResponseBody();
-        //     os.write(response.getBytes());
-        //     os.close();
-        // } catch (IOException e) {
-        //     System.out.println("response");
-        //     e.printStackTrace();
-        // }
         try {
             ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
             exchange.getResponseHeaders().set("Content-Type", "application/json");
@@ -725,16 +797,36 @@ public class Server {
         }
     }
 
+    public static void responseFile(HttpExchange exchange, int code, byte[] response,String fileName){
+        try {
+            OutputStream os = exchange.getResponseBody();
+            if(response.length>0){
+                exchange.getResponseHeaders().set("Content-Type", "application/octet-stream");
+                exchange.getResponseHeaders().set("Content-Disposition", "attachment; filename=" + fileName);
+                exchange.sendResponseHeaders(code, response.length);
+                
+  
+            }else{
+                response = "File not found".getBytes();
+                exchange.getResponseHeaders().set("Content-Type", "text/plain");
+                exchange.sendResponseHeaders(404, response.length);
+            }
+
+            ByteArrayInputStream bis = new ByteArrayInputStream(response);
+            int BUFFER_SIZE = 64;
+            byte [] buffer = new byte [BUFFER_SIZE];
+            int count ;
+            while ((count = bis.read(buffer)) != -1) {
+                os.write(buffer, 0, count);
+            }
+
+            os.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void response(HttpExchange exchange, int code, byte[] response,int length){
-        // try {
-        //     exchange.sendResponseHeaders(code, response.length());
-        //     OutputStream os = exchange.getResponseBody();
-        //     os.write(response.getBytes());
-        //     os.close();
-        // } catch (IOException e) {
-        //     System.out.println("response");
-        //     e.printStackTrace();
-        // }
         try {
             ByteArrayInputStream bis = new ByteArrayInputStream(response);
             exchange.getResponseHeaders().set("Content-Type", "application/octet-stream");
@@ -768,6 +860,7 @@ public class Server {
         server.createContext("/session", new SessionHandler());
         server.createContext("/task", new TaskHandler());
         server.createContext("/item", new ItemHandler());
+        server.createContext("/gallery", new GalleryHandler());
 
         // Start the server
         server.start();

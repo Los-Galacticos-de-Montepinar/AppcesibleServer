@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.nio.ByteBuffer;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -228,5 +229,91 @@ public class Utils {
             }
         }
         return false;
+    }
+
+    public static ArrayList<byte[]> splitByteArray(byte[] bytes,String string,int max){
+        System.out.println("Splitting " + bytes.length + " bytes");
+        ArrayList<byte[]> list = new ArrayList<>();
+        int currentStringIndex = 0;
+        int initByteArrayIndex = 0;
+        int nParts = 0;
+
+        int i = 0;
+        while(i < bytes.length){
+            currentStringIndex = 0;
+            while(
+                i+currentStringIndex < bytes.length &&
+                currentStringIndex < string.length() && 
+                bytes[i+currentStringIndex] == string.charAt(currentStringIndex) && 
+                nParts < max-1
+            ){
+                currentStringIndex++;
+                if(currentStringIndex==string.length()){
+                    int length = i-initByteArrayIndex;
+                    i += currentStringIndex;
+
+                    byte[] newByteArray = new byte[length];
+                    System.arraycopy(bytes, initByteArrayIndex, newByteArray, 0, length);
+                    list.add(newByteArray);
+                    initByteArrayIndex = i;
+                    nParts++;
+                }
+            }
+
+            i++;
+        }
+
+        int length = bytes.length-initByteArrayIndex;
+
+        byte[] newByteArray = new byte[length];
+        System.arraycopy(bytes, initByteArrayIndex, newByteArray, 0, length);
+        list.add(newByteArray);
+
+        return list;
+    }
+
+    public static ArrayList<byte[]> splitByteArray(byte[] bytes,String string){
+        return splitByteArray(bytes, string,Integer.MAX_VALUE);
+    }
+
+    public static int byteArrayIndexOf(byte[] bytes, char c){
+        for(int i = 0 ; i < bytes.length; i++){
+            if(bytes[i]==c) return i;
+        }
+        return -1;
+    }
+
+    public static byte[] byteArrayRemove(byte[] bytes, char c){
+        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
+        for(int i = 0 ; i < bytes.length; i++){
+            if(bytes[i]!=c){
+                buffer.put(bytes[i]);
+            }
+        }
+        buffer.rewind();
+        byte[] out = new byte[buffer.remaining()];
+        buffer.get(out);
+        return out;
+    }
+
+    public static byte[] byteArrayReplace(byte[] bytes, char c, char newChar){
+        byte[] out = bytes;
+        for(int i = 0 ; i < bytes.length; i++){
+            if(bytes[i]==c){
+                out[i] = (byte)newChar;
+            }
+        }
+        return out;
+    }
+
+    public static byte[] subByteArray(byte[] bytes, int index){
+        ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
+        for(int i = index ; i < bytes.length; i++){
+            buffer.put(bytes[i]);
+        }
+        buffer.rewind();
+        byte[] out = new byte[buffer.remaining()];
+        buffer.get(out);
+        return out;
     }
 }
