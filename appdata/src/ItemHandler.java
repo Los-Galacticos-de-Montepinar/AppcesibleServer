@@ -34,6 +34,7 @@ public class ItemHandler implements HttpHandler {
             switch(operation.action){
             case ALL_ITEMS:
                 String items = Utils.multipleItemsToJson(Server.getAllItems());
+                System.out.println(items);
                 Server.response(exchange, 200, items);
                 break;
             case ITEM:

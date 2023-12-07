@@ -87,7 +87,7 @@ public class SessionHandler implements HttpHandler{
             if(operation.action == UrlAction.PUBLICKEY){
                 System.out.println("sending public key");
                 byte[] bytes = Encrypt.getPublicBytes();
-                Server.response(exchange, 200,bytes,bytes.length );
+                Server.response(exchange, 200,bytes);
             }else{
                 // Send a response 
                 Server.response(exchange,400,"Received GET request at /session with invalid format");

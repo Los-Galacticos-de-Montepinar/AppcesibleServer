@@ -781,9 +781,10 @@ public class Server {
 
     public static void response(HttpExchange exchange, int code, String response){
         try {
-            ByteArrayInputStream bis = new ByteArrayInputStream(response.getBytes());
+            byte[] data = response.getBytes();
+            ByteArrayInputStream bis = new ByteArrayInputStream(data);
             exchange.getResponseHeaders().set("Content-Type", "application/json");
-            exchange.sendResponseHeaders(code, response.length());
+            exchange.sendResponseHeaders(code,data.length);
             OutputStream os = exchange.getResponseBody();
             int BUFFER_SIZE = 64;
             byte [] buffer = new byte [BUFFER_SIZE];
@@ -826,11 +827,11 @@ public class Server {
         }
     }
 
-    public static void response(HttpExchange exchange, int code, byte[] response,int length){
+    public static void response(HttpExchange exchange, int code, byte[] response){
         try {
             ByteArrayInputStream bis = new ByteArrayInputStream(response);
             exchange.getResponseHeaders().set("Content-Type", "application/octet-stream");
-            exchange.sendResponseHeaders(code, length);
+            exchange.sendResponseHeaders(code, response.length);
             OutputStream os = exchange.getResponseBody();
             int BUFFER_SIZE = 64;
             byte [] buffer = new byte [BUFFER_SIZE];
