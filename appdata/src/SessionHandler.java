@@ -32,11 +32,11 @@ public class SessionHandler implements HttpHandler{
                     }
                     break;
                 case 1:
-                    String passwordPart0 = jsonMap.get("passPart0");
-                    String passwordPart1 = jsonMap.get("passPart1");
-                    String passwordPart2 = jsonMap.get("passPart2");
+                    int passPart0 = Server.string2id(jsonMap.get("passPart0"));
+                    int passPart1 = Server.string2id(jsonMap.get("passPart1"));
+                    int passPart2 = Server.string2id(jsonMap.get("passPart2"));
 
-                    token = Server.authenticate(name,passwordPart0,passwordPart1,passwordPart2,key.getBytes());
+                    token = Server.authenticate(name,passPart0,passPart1,passPart2,key.getBytes());
 
                     if(token.equals("0")){
                         Server.response(exchange, 202, token);

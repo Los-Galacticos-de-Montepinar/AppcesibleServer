@@ -28,8 +28,6 @@ public class MultipartSection {
         generateTags(parts.get(0));
 
         data = parts.get(1);
-        System.out.println("DATA SIZE: " + data.length);
-        // Utils.printBytes(data);
     }
 
     private void generateTags(byte[] tagBytes){
@@ -55,7 +53,6 @@ public class MultipartSection {
             String [] tagParts = parts[i].split("=",2);
             String value = tagParts[1].replace("\"", "");
             String key = tagParts[0].replace(" ", "");
-            System.out.println("tags: "+key + " value: " + value);
             tags.put(key,value);
         }
     }

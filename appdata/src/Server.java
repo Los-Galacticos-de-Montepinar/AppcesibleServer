@@ -52,7 +52,7 @@ public class Server {
     }
 
     // Authenticate using images
-    public static String authenticate(String inputName,String inputPass0,String inputPass1,String inputPass2,byte[] key){
+    public static String authenticate(String inputName,int inputPass0,int inputPass1,int inputPass2,byte[] key){
         System.out.println("authenticating...");
         String token = "";
         try {
@@ -60,31 +60,31 @@ public class Server {
             statement.setString(1, inputName);
             ResultSet resultSet = statement.executeQuery();
             int id = resultSet.getInt("id");
-            String passPart0 = resultSet.getString("passPart0");
-            String passPart1 = resultSet.getString("passPart1");
-            String passPart2 = resultSet.getString("passPart2");
+            int passPart0 = resultSet.getInt("passPart0");
+            int passPart1 = resultSet.getInt("passPart1");
+            int passPart2 = resultSet.getInt("passPart2");
 
             int passCount = 0;
 
-            if(inputPass0==null){
+            if(inputPass0==-1){
                 token = "0";
-            }else if(inputPass0.equals(passPart0)){
+            }else if(inputPass0==passPart0){
                 passCount++;
             }else{
                 return "";
             }
 
-            if(inputPass1==null){
+            if(inputPass1==-1){
                 token = "0";
-            }else if(inputPass1.equals(passPart1)){
+            }else if(inputPass1==passPart1){
                 passCount++;
             }else{
                 return "";
             }
 
-            if(inputPass2==null){
+            if(inputPass2==-1){
                 token = "0";
-            }else if(inputPass2.equals(passPart2)){
+            }else if(inputPass2==passPart2){
                 passCount++;
             }else{
                 return "";
@@ -370,12 +370,13 @@ public class Server {
     }
 
     // Create item
-    public static void createItem(String itemName, String image){
+    public static void createItem(String itemName, String image, int count){
         System.out.println("creating item...");
         try{
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO item (id, itemName,imageName) VALUES (NULL,?,?);");
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO item (id, itemName,imageName,count) VALUES (NULL,?,?,?);");
             statement.setString(1,itemName);
             statement.setString(2,image);
+            statement.setInt(3,count);
             statement.executeUpdate();
         }catch(SQLException e){
             e.printStackTrace();
@@ -689,16 +690,16 @@ public class Server {
     }
 
     // Create loginInfo in the BD
-    public static void createLoginInfo(int userId,int method,String textPass,String passPart0,String passPart1,String passPart2){
+    public static void createLoginInfo(int userId,int method,String textPass,int passPart0,int passPart1,int passPart2){
         System.out.println("Creating loginInfo...");
         try{
             PreparedStatement statement = connection.prepareStatement("INSERT INTO loginInfo (id,idUser,method,textPass,passPart0,passPart1,passPart2) VALUES (NULL,?,?,?,?,?,?);");
             statement.setInt(1, userId);
             statement.setInt(2, method);
             statement.setString(3, textPass);
-            statement.setString(4, passPart0);
-            statement.setString(5, passPart1);
-            statement.setString(6, passPart2);
+            statement.setInt(4, passPart0);
+            statement.setInt(5, passPart1);
+            statement.setInt(6, passPart2);
 
             statement.executeUpdate();
         }catch(SQLException e){

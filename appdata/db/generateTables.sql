@@ -17,12 +17,12 @@ DROP TABLE class;
 --	1 imagenes
 CREATE TABLE loginInfo(
 	id INTEGER PRIMARY KEY,
-	idUser INT,
-	method INT NOT NULL,
+	idUser INTEGER,
+	method INTEGER NOT NULL,
 	textPass TEXT,
-	passPart0 TEXT,
-	passPart1 TEXT,
-	passPart2 TEXT,
+	passPart0 INTEGER,
+	passPart1 INTEGER,
+	passPart2 INTEGER,
 	FOREIGN KEY (idUser) REFERENCES user(id)
 );
 
@@ -68,7 +68,8 @@ CREATE TABLE taskStep(
 CREATE TABLE item(
 	id INTEGER PRIMARY KEY,
 	itemName TEXT,
-	imageName TEXT
+	imageName INTEGER,
+	count INTEGER
 );
 
 CREATE TABLE itemTaskEntry(

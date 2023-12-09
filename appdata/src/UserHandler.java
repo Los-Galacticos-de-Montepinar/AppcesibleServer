@@ -63,9 +63,9 @@ public class UserHandler implements HttpHandler {
                 }
                 int loginType = Server.string2id(jsonMap.get("loginType"));
                 String textPass = jsonMap.get("passwd");
-                String passPart0 = jsonMap.get("passPart0");
-                String passPart1 = jsonMap.get("passPart1");
-                String passPart2 = jsonMap.get("passPart2");
+                int passPart0 = Server.string2id(jsonMap.get("passPart0"));
+                int passPart1 = Server.string2id(jsonMap.get("passPart1"));
+                int passPart2 = Server.string2id(jsonMap.get("passPart2"));
 
                 // Si no se especifica el tipo de login será de contraseña
                 loginType = loginType == -1 ? 0 : loginType;

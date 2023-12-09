@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 
 public class GalleryHandler implements HttpHandler {
@@ -23,34 +24,38 @@ public class GalleryHandler implements HttpHandler {
         UrlOperation operation = analizeUrl(exchange.getRequestURI().getPath());
         // curl -i -Ffiledata=@test.png -Fdata='{"username":"user1", "password":"password"}'  http://localhost:8080/gallery/new
         // curl -o dl.png  http://localhost:8080/gallery
-        //00001e99
-        // 01 08 95
-
+        Headers headers = exchange.getRequestHeaders();
+        String contentType = headers.get("content-type").get(0);
+        System.out.println(contentType);
         if ("POST".equals(requestMethod)) {
             switch(operation.action){
             case NEW_MEDIA:
-                ArrayList<MultipartSection> sections = Server.getSections(exchange);
-                for(int i = 0; i < sections.size();i++){
-                    MultipartSection section = sections.get(i);
-                    String name = section.getTag("name");
-                    
-                    if(name.equals("filedata")){
-                        System.out.println(section.getContentType());
-                        if(
-                            section.getContentType().equals("image/png")||
-                            section.getContentType().equals("image/jpeg")||
-                            section.getContentType().equals("image/jpg")){
+                if(contentType.equals("multipart/form-data")){
+                    ArrayList<MultipartSection> sections = Server.getSections(exchange);
+                    for(MultipartSection section : sections){
+                        String name = section.getTag("name");
+                        
+                        if(name.equals("filedata")){
+                            System.out.println(section.getContentType());
+                            if(
+                                section.getContentType().equals("image/png")||
+                                section.getContentType().equals("image/jpeg")||
+                                section.getContentType().equals("image/jpg")){
 
-                            byte[] data = section.getData();
+                                byte[] data = section.getData();
 
-                            Server.createImage(section.getTag("filename"), data);
-                            System.out.println("new image");
-                            Server.response(exchange, 200, "new image");
-                        }else{
-                            Server.response(exchange, 400, "not a valid file extension");
+                                Server.createImage(section.getTag("filename"), data);
+                                System.out.println("new image");
+                                Server.response(exchange, 200, "new image");
+                            }else{
+                                Server.response(exchange, 400, "not a valid file extension");
+                            }
                         }
                     }
+                }else{
+                    Server.response(exchange, 400, "not a valid content type");
                 }
+
                 break;
             default:
                 Server.response(exchange, 400, "Received POST request with invalid format");

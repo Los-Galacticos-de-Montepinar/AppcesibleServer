@@ -74,8 +74,9 @@ public class Utils {
             int id = resultSet.getInt("id");
             String name = resultSet.getString("itemName");
             String image = resultSet.getString("imageName");
+            int count = resultSet.getInt("imageName");
          
-            jsonResult = "{\"id\":" + id + ",\"name\":\"" + name + "\",\"image\":\"" + image + "\"}";
+            jsonResult = "{\"id\":" + id + ",\"name\":\"" + name + "\",\"image\":\"" + image + "\",\"count\":" + count + "}";
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -249,6 +250,34 @@ public class Utils {
         jsonResult = "[" + String.join(",", list) + "]";
         return jsonResult;
     }
+
+    public static String classroomToJson(ResultSet resultSet){
+        String jsonResult = "";
+        try{
+            int id = resultSet.getInt("id");
+            String name = resultSet.getString("className");
+         
+            jsonResult = "{\"id\":" + id +  ",\"className\":" + name + "\"}";
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return jsonResult;
+    }
+
+    public static String multipleClassroomsToJson(ResultSet resultSet){
+        String jsonResult = "";
+        ArrayList<String> list = new ArrayList<>();
+        try{
+            while (resultSet.next()) {
+                list.add(classroomToJson(resultSet));
+            }
+         
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        jsonResult = "[" + String.join(",", list) + "]";
+        return jsonResult;
+    }
     
     public static boolean hasColumn(ResultSet rs, String columnName) throws SQLException {
         ResultSetMetaData rsmd = rs.getMetaData();
@@ -262,7 +291,6 @@ public class Utils {
     }
 
     public static ArrayList<byte[]> splitByteArray(byte[] bytes,String string,int max){
-        System.out.println("Splitting " + bytes.length + " bytes using a " + string.getBytes().length + " bytes separator");
         ArrayList<byte[]> list = new ArrayList<>();
         int currentStringIndex = 0;
         int initByteArrayIndex = 0;
@@ -298,15 +326,6 @@ public class Utils {
         byte[] newByteArray = new byte[length];
         System.arraycopy(bytes, initByteArrayIndex, newByteArray, 0, length);
         list.add(newByteArray);
-
-        int size = 0;
-        for(byte[] b : list){
-            System.out.print(b.length + " + ");
-            size += b.length;
-        }
-        size += string.getBytes().length * (nParts);
-
-        System.out.println(string.getBytes().length * (nParts) + " = " + size);
 
         return list;
     }

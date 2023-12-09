@@ -17,7 +17,8 @@ public class ItemHandler implements HttpHandler {
             case NEW_ITEM:
                 String newName = jsonMap.get("name");
                 String newImage = jsonMap.get("image");
-                Server.createItem(newName, newImage);
+                int count = Server.string2id(jsonMap.get("count"));
+                Server.createItem(newName, newImage,count);
                 Server.response(exchange,200,"Received POST request at /item/new to create item");         
                 break;
             case ITEM:
