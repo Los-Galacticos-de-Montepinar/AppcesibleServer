@@ -257,7 +257,7 @@ public class Utils {
             int id = resultSet.getInt("id");
             String name = resultSet.getString("className");
          
-            jsonResult = "{\"id\":" + id +  ",\"className\":" + name + "\"}";
+            jsonResult = "{\"id\":" + id +  ",\"className\":\"" + name + "\"}";
         }catch(Exception e){
             e.printStackTrace();
         }
