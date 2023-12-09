@@ -88,8 +88,6 @@ public class Server {
                 return "";
             }
 
-            System.out.println(passPart0 + " " + passPart1 + " " + passPart2);
-
             if(passCount==3){
                 token = SessionManager.findSessionTokenByUser(id);
                 if(token == null && key != null){
