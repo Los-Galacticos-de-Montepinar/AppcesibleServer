@@ -130,18 +130,18 @@ Comprobar validez de contraseña parcial
 # Si devuelve 0, es que es válida
 # No devuelve el token si no se envian los 3 componentes correctos
 curl -i -X POST -H 'Content-Type: application/json' \
--d '{"userName": "Lucy Steel","passPart0":1,"passPart1":1}' \
+-d '{"userName": "Lucy Steel","passPart0":1,"passPart1":1,"publicKey":rasfDDFSs}' \
 http://localhost:8080/session/login
 ```
 
 Obtener token de sesión
 ```sh
 curl -i -X POST -H 'Content-Type: application/json' \
--d '{"userName": "Gyro Zeppeli","passwd":"pass33"}' http://localhost:8080/session/login
+-d '{"userName": "Gyro Zeppeli","passwd":"pass33","publicKey":hhdfdfDCss}' http://localhost:8080/session/login
 ```
 ```sh
 curl -i -X POST -H 'Content-Type: application/json' \
--d '{"userName": "Lucy Steel","passPart0":1,"passPart1":1,"passPart2":1}' \
+-d '{"userName": "Lucy Steel","passPart0":1,"passPart1":1,"passPart2":1,"publicKey":rasfDDFSs}' \
 http://localhost:8080/session/login
 ```
 Cerrar sesión usando un TOKEN = 4d49b7bd-359e-4aa7-9919-979dfc285e2c

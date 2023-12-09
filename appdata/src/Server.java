@@ -64,7 +64,7 @@ public class Server {
 
             int passCount = 0;
 
-            if(inputPass0!=-1){
+            if(inputPass0==-1){
                 token = "0";
             }else if(inputPass0==passPart0){
                 passCount++;
@@ -72,7 +72,7 @@ public class Server {
                 return "";
             }
 
-            if(inputPass1!=-1){
+            if(inputPass1==-1){
                 token = "0";
             }else if(inputPass1==passPart1){
                 passCount++;
@@ -80,13 +80,15 @@ public class Server {
                 return "";
             }
 
-            if(inputPass2!=-1){
+            if(inputPass2==-1){
                 token = "0";
             }else if(inputPass2==passPart2){
                 passCount++;
             }else{
                 return "";
             }
+
+            System.out.println(passPart0 + " " + passPart1 + " " + passPart2);
 
             if(passCount==3){
                 token = SessionManager.findSessionTokenByUser(id);

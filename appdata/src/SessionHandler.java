@@ -32,19 +32,24 @@ public class SessionHandler implements HttpHandler{
                     }
                     break;
                 case 1:
+                    System.out.println("hola");
                     int passPart0 = Server.string2id(jsonMap.get("passPart0"));
                     int passPart1 = Server.string2id(jsonMap.get("passPart1"));
                     int passPart2 = Server.string2id(jsonMap.get("passPart2"));
-
-                    token = Server.authenticate(name,passPart0,passPart1,passPart2,key.getBytes());
-
-                    if(token.equals("0")){
-                        Server.response(exchange, 202, token);
-                    }else if(!token.equals("")){
-                        Server.response(exchange, 200, token);
+                    System.out.println("adios");
+                    if(key!=null){
+                        token = Server.authenticate(name,passPart0,passPart1,passPart2,key.getBytes());
+                        if(token.equals("0")){
+                            Server.response(exchange, 202, token);
+                        }else if(!token.equals("")){
+                            Server.response(exchange, 200, token);
+                        }else{
+                            Server.response(exchange, 401, "Incorrect username or password");
+                        }
                     }else{
-                        Server. response(exchange, 401, "Incorrect username or password");
+                        Server.response(exchange, 401, "There is no public key");
                     }
+
                     break;
                 default:
                     Server.response(exchange, 401, "User does not exist");
