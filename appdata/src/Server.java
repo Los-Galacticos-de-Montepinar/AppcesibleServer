@@ -368,12 +368,12 @@ public class Server {
     }
 
     // Create item
-    public static void createItem(String itemName, String image, int count){
+    public static void createItem(String itemName, int image, int count){
         System.out.println("creating item...");
         try{
             PreparedStatement statement = connection.prepareStatement("INSERT INTO item (id, itemName,imageName,count) VALUES (NULL,?,?,?);");
             statement.setString(1,itemName);
-            statement.setString(2,image);
+            statement.setInt(2,image);
             statement.setInt(3,count);
             statement.executeUpdate();
         }catch(SQLException e){
@@ -411,7 +411,7 @@ public class Server {
     }
 
     // Update item in the BD
-    public static void updateItem(int id, String name, String image){
+    public static void updateItem(int id, String name, int image){
         try {
             if(name!=null){
                 PreparedStatement statement = connection.prepareStatement("UPDATE item SET itemName=? WHERE id=?;");
@@ -419,9 +419,9 @@ public class Server {
                 statement.setInt(2, id);
                 statement.executeUpdate();
             }
-            if(image!=null){
+            if(image!=-1){
                 PreparedStatement statement = connection.prepareStatement("UPDATE item SET imageName=? WHERE id=?;");
-                statement.setString(1, image);
+                statement.setInt(1, image);
                 statement.setInt(2, id);
                 statement.executeUpdate();
             }

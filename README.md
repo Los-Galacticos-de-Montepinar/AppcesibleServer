@@ -38,7 +38,7 @@ http://localhost:8080/user/new
 ```
 ```sh
 curl -i -X POST -H 'Content-Type: application/json' \
--d '{"userName": "Lucy Steel","pfp":5,"userType":1,"idClass":1,"letterSize":20,"interactionFormat":2,"loginType":1,"passPart0":"img0","passPart1":"img1","passPart2":"img2"}' \
+-d '{"userName": "Lucy Steel","pfp":5,"userType":1,"idClass":1,"letterSize":20,"interactionFormat":2,"loginType":1,"passPart0":1,"passPart1":1,"passPart2":1}' \
 http://localhost:8080/user/new
 ```
 Actualizar usuario con ID = 1
@@ -46,7 +46,7 @@ Actualizar usuario con ID = 1
 curl -i -X POST -H 'Content-Type: application/json' -d '{"letterSize":23}' http://localhost:8080/user/1
 ```
 ```sh
-curl -i -X POST -H 'Content-Type: application/json' -d '{"loginType":1,"passPart0":"img0","passPart1":"img1","passPart2":"img2"}' http://localhost:8080/user/1
+curl -i -X POST -H 'Content-Type: application/json' -d '{"loginType":1,"passPart0":1,"passPart1":1,"passPart2":1}' http://localhost:8080/user/1
 ```
 Obtener profesor con ID = 1
 ```sh
@@ -85,7 +85,7 @@ http://localhost:8080/task/new
 Crear un paso asociado a una tarea
 ```sh
 curl -i -X POST -H 'Content-Type: application/json' \
--d '{"media":"videolink","order":1,"taskId":1,"desc":"start cleaning"}' \
+-d '{"media":3,"order":1,"taskId":1,"desc":"start cleaning"}' \
 http://locahost:8080/task/step/new
 ```
 Obtener una tarea con ID = 1
@@ -130,7 +130,7 @@ Comprobar validez de contraseña parcial
 # Si devuelve 0, es que es válida
 # No devuelve el token si no se envian los 3 componentes correctos
 curl -i -X POST -H 'Content-Type: application/json' \
--d '{"userName": "Lucy Steel","passPart0":"img0","passPart1":"img1"}' \
+-d '{"userName": "Lucy Steel","passPart0":1,"passPart1":1}' \
 http://localhost:8080/session/login
 ```
 
@@ -141,7 +141,7 @@ curl -i -X POST -H 'Content-Type: application/json' \
 ```
 ```sh
 curl -i -X POST -H 'Content-Type: application/json' \
--d '{"userName": "Lucy Steel","passPart0":"img0","passPart1":"img1","passPart2":"img2"}' \
+-d '{"userName": "Lucy Steel","passPart0":1,"passPart1":1,"passPart2":1}' \
 http://localhost:8080/session/login
 ```
 Cerrar sesión usando un TOKEN = 4d49b7bd-359e-4aa7-9919-979dfc285e2c
@@ -155,7 +155,7 @@ http://localhost:8080/session/logout
 Añadir nuevo item al inventario
 ```sh
 curl -i -X POST -H 'Content-Type: application/json' \
--d '{"name": "Bulb","image":"img","count":3}' \
+-d '{"name": "Bulb","image":1,"count":3}' \
 http://localhost:8080/item/new
 ```
 Obtener item con ID = 1

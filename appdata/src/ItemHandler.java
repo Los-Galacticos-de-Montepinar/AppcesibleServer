@@ -16,14 +16,14 @@ public class ItemHandler implements HttpHandler {
             switch(operation.action){
             case NEW_ITEM:
                 String newName = jsonMap.get("name");
-                String newImage = jsonMap.get("image");
+                int newImage = Server.string2id(jsonMap.get("image"));
                 int count = Server.string2id(jsonMap.get("count"));
                 Server.createItem(newName, newImage,count);
                 Server.response(exchange,200,"Received POST request at /item/new to create item");         
                 break;
             case ITEM:
                 String name = jsonMap.get("name");
-                String image = jsonMap.get("image");
+                int image = Server.string2id(jsonMap.get("image"));
                 Server.updateItem(operation.id, name, image);
                 Server.response(exchange, 200, "Received POST request at /item/new to update item");
                 break;
