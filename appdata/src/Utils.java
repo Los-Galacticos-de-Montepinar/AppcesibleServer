@@ -170,7 +170,7 @@ public class Utils {
             String quantity = resultSet.getString("quantity");
             String idItem = resultSet.getString("idItem");
          
-            jsonResult = "{\"id\":" + id + ",\"name\":\"" + name + "\",\"image\":" + image + ",\"idTask\":" + idTask + ",\"count\":\"" + quantity +",\"item\":\"" + idItem +"}";
+            jsonResult = "{\"id\":" + id + ",\"name\":\"" + name + "\",\"image\":" + image + ",\"idTask\":" + idTask + ",\"count\":" + quantity +",\"item\":" + idItem +"}";
         }catch(Exception e){
             e.printStackTrace();
         }
