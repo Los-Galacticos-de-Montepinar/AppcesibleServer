@@ -155,7 +155,7 @@ http://localhost:8080/session/logout
 Añadir nuevo item al inventario
 ```sh
 curl -i -X POST -H 'Content-Type: application/json' \
--d '{"name": "Bulb","image":"img"}' \
+-d '{"name": "Bulb","image":"img","count":3}' \
 http://localhost:8080/item/new
 ```
 Obtener item con ID = 1
@@ -166,3 +166,33 @@ Obtener todos los items
 ```sh
 curl -i -X GET http://localhost:8080/item
 ```
+
+### Clases
+
+Obtener lista de clases
+```sh
+curl -i -X GET http://localhost:8080/class
+```
+
+### Galeria
+
+Obtener lista de media
+```sh
+curl -i -X GET http://localhost:8080/gallery
+```
+
+Descargar media con ID = 1 en un archivo con nombre dl.png
+```sh
+curl -o dl.png  http://localhost:8080/gallery/1
+```
+Subir media junto otros datos
+```sh
+curl -i -Ffiledata=@"test.png" -Fdata='{"username":"user1", "password":"password"}'  http://localhost:8080/gallery/new
+```
+
+Subir media
+```sh
+curl -i -Ffiledata=@"test.png" http://localhost:8080/gallery/new
+```
+
+

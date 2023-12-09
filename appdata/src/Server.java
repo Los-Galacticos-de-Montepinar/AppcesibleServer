@@ -916,6 +916,7 @@ public class Server {
         server.createContext("/task", new TaskHandler());
         server.createContext("/item", new ItemHandler());
         server.createContext("/gallery", new GalleryHandler());
+        server.createContext("/class", new ClassHandler());
 
         // Start the server
         server.start();

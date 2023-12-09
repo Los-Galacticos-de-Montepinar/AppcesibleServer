@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.Headers;
@@ -22,11 +23,19 @@ public class GalleryHandler implements HttpHandler {
         String requestMethod = exchange.getRequestMethod();
 
         UrlOperation operation = analizeUrl(exchange.getRequestURI().getPath());
+
         // curl -i -Ffiledata=@test.png -Fdata='{"username":"user1", "password":"password"}'  http://localhost:8080/gallery/new
         // curl -o dl.png  http://localhost:8080/gallery
         Headers headers = exchange.getRequestHeaders();
-        String contentType = headers.get("content-type").get(0);
-        System.out.println(contentType);
+        List<String> ct = headers.get("content-type");
+        String contentType = "";
+        if(ct!=null){
+            System.out.println(headers);
+
+            contentType = ct.get(0).split(";")[0];
+            System.out.println(contentType);
+        }
+
         if ("POST".equals(requestMethod)) {
             switch(operation.action){
             case NEW_MEDIA:
@@ -84,7 +93,7 @@ public class GalleryHandler implements HttpHandler {
         UrlOperation operation = new UrlOperation(0, UrlAction.ERROR);
 
         int n = -2;
-        // TODO
+
         n = Utils.compareURL(path, "/gallery/?"); if(n!=-2) operation.set(n,UrlAction.MEDIA);
         if(Utils.compareURL(path, "/gallery/new")!=-2) operation.set(-1,UrlAction.NEW_MEDIA);
         if(Utils.compareURL(path, "/gallery")!=-2) operation.set(-1,UrlAction.ALL_MEDIA);
