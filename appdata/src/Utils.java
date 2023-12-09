@@ -76,7 +76,7 @@ public class Utils {
             String image = resultSet.getString("imageName");
             int count = resultSet.getInt("imageName");
          
-            jsonResult = "{\"id\":" + id + ",\"name\":\"" + name + "\",\"image\":\"" + image + "\",\"count\":" + count + "}";
+            jsonResult = "{\"id\":" + id + ",\"name\":\"" + name + "\",\"image\":" + image + ",\"count\":" + count + "}";
         }catch(Exception e){
             e.printStackTrace();
         }
