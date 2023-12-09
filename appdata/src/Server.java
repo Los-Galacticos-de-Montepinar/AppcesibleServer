@@ -3,6 +3,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.Headers;
 
 import java.net.InetSocketAddress;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -11,13 +12,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+
 import java.util.Map;
-
-import javax.swing.event.MenuKeyEvent;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -66,7 +64,7 @@ public class Server {
 
             int passCount = 0;
 
-            if(inputPass0==-1){
+            if(inputPass0!=-1){
                 token = "0";
             }else if(inputPass0==passPart0){
                 passCount++;
@@ -74,7 +72,7 @@ public class Server {
                 return "";
             }
 
-            if(inputPass1==-1){
+            if(inputPass1!=-1){
                 token = "0";
             }else if(inputPass1==passPart1){
                 passCount++;
@@ -82,7 +80,7 @@ public class Server {
                 return "";
             }
 
-            if(inputPass2==-1){
+            if(inputPass2!=-1){
                 token = "0";
             }else if(inputPass2==passPart2){
                 passCount++;
@@ -474,7 +472,7 @@ public class Server {
     }
 
     // Update user login info
-    public static void updateUserLogin(int id,int method, String textPass, String passPart0, String passPart1, String passPart2){
+    public static void updateUserLogin(int id,int method, String textPass, int passPart0, int passPart1, int passPart2){
         try {
             PreparedStatement methodStatement = connection.prepareStatement("UPDATE loginInfo SET method=? WHERE idUser=?;");
             methodStatement.setInt(1, method);
@@ -487,21 +485,21 @@ public class Server {
                 statement.setInt(2, id);
                 statement.executeUpdate();
             }
-            if(passPart0!=null){
+            if(passPart0!=-1){
                 PreparedStatement statement = connection.prepareStatement("UPDATE loginInfo SET passPart0=? WHERE idUser=?;");
-                statement.setString(1, passPart0);
+                statement.setInt(1, passPart0);
                 statement.setInt(2, id);
                 statement.executeUpdate();
             }
-            if(passPart1!=null){
+            if(passPart1!=-1){
                 PreparedStatement statement = connection.prepareStatement("UPDATE loginInfo SET passPart1=? WHERE idUser=?;");
-                statement.setString(1, passPart1);
+                statement.setInt(1, passPart1);
                 statement.setInt(2, id);
                 statement.executeUpdate();
             }
-            if(passPart2!=null){
+            if(passPart2!=-1){
                 PreparedStatement statement = connection.prepareStatement("UPDATE loginInfo SET passPart2=? WHERE idUser=?;");
-                statement.setString(1, passPart2);
+                statement.setInt(1, passPart2);
                 statement.setInt(2, id);
                 statement.executeUpdate();
             }
