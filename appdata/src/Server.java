@@ -644,14 +644,43 @@ public class Server {
         }
     }
 
+    // Get media list from the BD
+    public static ResultSet getMediaList(){
+        System.out.println("Getting media list...");
+        System.out.println("getting image...");
+        ResultSet resultSet = null;
+        PreparedStatement statement;
+        try {
+            statement = connection.prepareStatement("SELECT id, imageType, imageDesc FROM gallery");
+            resultSet = statement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultSet;
+    }
+
     // Get media from BD
-    public static ResultSet getImage(int id){
+    public static ResultSet getMedia(int id){
         System.out.println("getting image...");
         ResultSet resultSet = null;
         PreparedStatement statement;
         try {
             statement = connection.prepareStatement("SELECT * FROM gallery WHERE id = ?");
             statement.setInt(1, id);
+            resultSet = statement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultSet;
+    }
+
+    // Get class list from BD
+    public static ResultSet getClassList(){
+        System.out.println("getting class list...");
+        ResultSet resultSet = null;
+        PreparedStatement statement;
+        try {
+            statement = connection.prepareStatement("SELECT * FROM class");
             resultSet = statement.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -747,9 +776,9 @@ public class Server {
         BufferedInputStream reader = new BufferedInputStream(exchange.getRequestBody());
         ByteArrayOutputStream ous = new ByteArrayOutputStream();
         try {
-            byte[] buffer = new byte[32];
+            byte[] buffer = new byte[256];
             while (reader.read(buffer)!= -1) {
-                ous.write(buffer, 0, 32);
+                ous.write(buffer);
             }
 
         } catch (IOException e) {
@@ -758,12 +787,14 @@ public class Server {
         byte[] data = ous.toByteArray();
 
         // Separate the contents
-        ArrayList<byte[]> bodyParts = Utils.splitByteArray(data, "--"+boundary+"--");
-        ArrayList<byte[]> contentParts = Utils.splitByteArray(bodyParts.get(0), "--"+boundary+"");
+        ArrayList<byte[]> bodyParts = Utils.splitByteArray(data, "\r\n--"+boundary+"--");
+
+        ArrayList<byte[]> contentParts = Utils.splitByteArray(bodyParts.get(0), "\r\n--"+boundary);
 
         for(int i = 0 ; i < contentParts.size();i++){
-            if(contentParts.get(i).length>4){
-                sections.add(new MultipartSection(contentParts.get(i)));
+            byte[] part = Utils.byteArrayRemove(contentParts.get(i),"--" + boundary);
+            if(part.length>4){
+                sections.add(new MultipartSection(part));
             }
         }
 
@@ -823,6 +854,30 @@ public class Server {
 
             os.close();
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void responseFile(HttpExchange exchange,int code, ResultSet data){
+        try {
+            OutputStream os = exchange.getResponseBody();
+
+            exchange.getResponseHeaders().set("Content-Type", "application/octet-stream");
+            exchange.getResponseHeaders().set("Content-Disposition", "attachment; filename=" + data.getString("imageDesc"));
+            exchange.sendResponseHeaders(code, data.getBinaryStream("imageData").available());
+            
+            InputStream bis = data.getBinaryStream("imageData");
+            int BUFFER_SIZE = 64;
+            byte [] buffer = new byte [BUFFER_SIZE];
+            int count ;
+            while ((count = bis.read(buffer)) != -1) {
+                os.write(buffer, 0, count);
+            }
+
+            os.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }

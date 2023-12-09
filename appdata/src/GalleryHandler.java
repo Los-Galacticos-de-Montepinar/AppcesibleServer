@@ -2,7 +2,10 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.*;
 import java.io.InputStreamReader;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import com.sun.net.httpserver.HttpHandler;
@@ -20,6 +23,8 @@ public class GalleryHandler implements HttpHandler {
         UrlOperation operation = analizeUrl(exchange.getRequestURI().getPath());
         // curl -i -Ffiledata=@test.png -Fdata='{"username":"user1", "password":"password"}'  http://localhost:8080/gallery/new
         // curl -o dl.png  http://localhost:8080/gallery
+        //00001e99
+        // 01 08 95
 
         if ("POST".equals(requestMethod)) {
             switch(operation.action){
@@ -28,16 +33,24 @@ public class GalleryHandler implements HttpHandler {
                 for(int i = 0; i < sections.size();i++){
                     MultipartSection section = sections.get(i);
                     String name = section.getTag("name");
+                    
                     if(name.equals("filedata")){
-                        lastData = section.getData();
-                        lastFileName = section.getTag("filename");
+                        System.out.println(section.getContentType());
+                        if(
+                            section.getContentType().equals("image/png")||
+                            section.getContentType().equals("image/jpeg")||
+                            section.getContentType().equals("image/jpg")){
+
+                            byte[] data = section.getData();
+
+                            Server.createImage(section.getTag("filename"), data);
+                            System.out.println("new image");
+                            Server.response(exchange, 200, "new image");
+                        }else{
+                            Server.response(exchange, 400, "not a valid file extension");
+                        }
                     }
                 }
-
-                System.out.println("new media");
-                fileUploaded = true;
-                Server.response(exchange, 200, "new media");
-                
                 break;
             default:
                 Server.response(exchange, 400, "Received POST request with invalid format");
@@ -46,15 +59,12 @@ public class GalleryHandler implements HttpHandler {
         }else if ("GET".equals(requestMethod)){
             switch(operation.action){
             case ALL_MEDIA:
-                if(fileUploaded){
-                    System.out.println("getting media");
-                    Server.responseFile(exchange, 200, lastData,lastFileName);
-                }else{
-                    System.out.println("no file media");
-                    Server.response(exchange, 400, "no file media");
-                }
-
-                
+                System.out.println("getting media");
+                Server.response(exchange, 200, Utils.multipleMediaMetadataToJson(Server.getMediaList()));
+                break;
+            case MEDIA:
+                ResultSet media = Server.getMedia(operation.id);
+                Server.responseFile(exchange,200, media);
                 break;
             default:
                 Server.response(exchange, 400, "Received POST request with invalid format");

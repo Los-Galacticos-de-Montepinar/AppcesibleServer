@@ -15,3 +15,7 @@ INSERT INTO item (id, itemName, imageName) VALUES (NULL,'Boli','img');
 INSERT INTO item (id, itemName, imageName) VALUES (NULL,'Regla','img');
 INSERT INTO item (id, itemName, imageName) VALUES (NULL,'Goma','img');
 INSERT INTO item (id, itemName, imageName) VALUES (NULL,'Hoja','img');
+
+INSERT INTO class(id, className) VALUES (NULL ,'Clase 1');
+INSERT INTO class(id, className) VALUES (NULL ,'Clase 2');
+INSERT INTO class(id, className) VALUES (NULL ,'Clase 3');

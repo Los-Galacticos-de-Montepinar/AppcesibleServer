@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -220,6 +221,35 @@ public class Utils {
         return jsonResult;
     }
 
+    public static String mediaMetadataToJson(ResultSet resultSet){
+        String jsonResult = "";
+        try{
+            int id = resultSet.getInt("id");
+            int type = resultSet.getInt("imageType");
+            String desc = resultSet.getString("imageDesc");
+         
+            jsonResult = "{\"id\":" + id + ",\"imageType\":" + type + ",\"imageDesc\":" + desc + "\"}";
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return jsonResult;
+    }
+
+    public static String multipleMediaMetadataToJson(ResultSet resultSet){
+        String jsonResult = "";
+        ArrayList<String> list = new ArrayList<>();
+        try{
+            while (resultSet.next()) {
+                list.add(mediaMetadataToJson(resultSet));
+            }
+         
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        jsonResult = "[" + String.join(",", list) + "]";
+        return jsonResult;
+    }
+    
     public static boolean hasColumn(ResultSet rs, String columnName) throws SQLException {
         ResultSetMetaData rsmd = rs.getMetaData();
         int columns = rsmd.getColumnCount();
@@ -232,7 +262,7 @@ public class Utils {
     }
 
     public static ArrayList<byte[]> splitByteArray(byte[] bytes,String string,int max){
-        System.out.println("Splitting " + bytes.length + " bytes");
+        System.out.println("Splitting " + bytes.length + " bytes using a " + string.getBytes().length + " bytes separator");
         ArrayList<byte[]> list = new ArrayList<>();
         int currentStringIndex = 0;
         int initByteArrayIndex = 0;
@@ -269,6 +299,15 @@ public class Utils {
         System.arraycopy(bytes, initByteArrayIndex, newByteArray, 0, length);
         list.add(newByteArray);
 
+        int size = 0;
+        for(byte[] b : list){
+            System.out.print(b.length + " + ");
+            size += b.length;
+        }
+        size += string.getBytes().length * (nParts);
+
+        System.out.println(string.getBytes().length * (nParts) + " = " + size);
+
         return list;
     }
 
@@ -296,6 +335,24 @@ public class Utils {
         return out;
     }
 
+    public static byte[] byteArrayRemove(byte[] bytes, String string){
+        ArrayList<byte[]> parts = Utils.splitByteArray(bytes, string);
+        int size = 0;
+        for(byte[] part : parts){
+            size += part.length;
+        }
+        ByteBuffer buffer = ByteBuffer.allocate(size);
+        for(byte[] part : parts){
+            for(int i = 0; i < part.length; i++){
+                buffer.put(part[i]);
+            }
+        }
+        buffer.rewind();
+        byte[] out = new byte[buffer.remaining()];
+        buffer.get(out);
+        return out;
+    }
+
     public static byte[] byteArrayReplace(byte[] bytes, char c, char newChar){
         byte[] out = bytes;
         for(int i = 0 ; i < bytes.length; i++){
@@ -315,5 +372,15 @@ public class Utils {
         byte[] out = new byte[buffer.remaining()];
         buffer.get(out);
         return out;
+    }
+
+    public static void printBytes(byte[] input){
+        int j = 0;
+        System.out.print("->");
+        while(j < input.length){
+            System.out.print((char)input[j]);
+            j++;
+        }
+        System.out.println("<- " + j);
     }
 }

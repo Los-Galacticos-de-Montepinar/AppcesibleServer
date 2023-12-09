@@ -24,10 +24,12 @@ public class MultipartSection {
 
     private void fromBytesSection(byte[] input){
         ArrayList<byte[]> parts = Utils.splitByteArray(input, "\r\n\r\n",2);
-        
+
         generateTags(parts.get(0));
 
         data = parts.get(1);
+        System.out.println("DATA SIZE: " + data.length);
+        // Utils.printBytes(data);
     }
 
     private void generateTags(byte[] tagBytes){
@@ -40,7 +42,7 @@ public class MultipartSection {
         if(lines.length>2){
             int index = lines[2].indexOf(":");
             if(index>0){
-                contentType = lines[2].substring(index).replace(" ", "");
+                contentType = lines[2].substring(index).replace(" ", "").replace(":", "");
             }else{
                 contentType = "text/plain";
             }

@@ -10,6 +10,7 @@ DROP TABLE taskAssignment;
 DROP TABLE item;
 DROP TABLE itemTaskEntry;
 DROP TABLE gallery;
+DROP TABLE class;
 
 -- method:
 --	0 texto
@@ -45,7 +46,7 @@ CREATE TABLE student(
 	FOREIGN KEY (idUser) REFERENCES user(id)
 );
 
--- user:
+-- type:
 --	0 fija
 --	1 pedido
 CREATE TABLE task (
@@ -88,10 +89,17 @@ CREATE TABLE taskAssignment(
 	FOREIGN KEY (idUser) REFERENCES user(id)
 );
 
+-- type:
+-- 0 bitmap
 CREATE TABLE gallery(
 	id INTEGER PRIMARY KEY,
 	imageType INTEGER,
 	imageUrl TEXT,
 	imageData BLOB,
 	imageDesc TEXT
+);
+
+CREATE TABLE class(
+	id INTEGER PRIMARY KEY,
+	className TEXT
 );
