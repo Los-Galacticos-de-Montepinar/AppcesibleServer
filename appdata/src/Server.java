@@ -176,12 +176,28 @@ public class Server {
 
     // Update task item in the BD
     public static void updateTaskItem(int id,int quantity,int type){
+        System.out.println("Updating task item...");
         try {
             if(quantity>=0){
-                PreparedStatement statement = connection.prepareStatement("UPDATE itemTaskEntry SET quantity=? WHERE id=?;");
-                statement.setInt(1, quantity);
-                statement.setInt(2, id);
-                statement.executeUpdate();
+                // Comprobar si hay suficientes items
+                PreparedStatement countStatement = connection.prepareStatement("SELECT * FROM item CROSS JOIN itemTaskEntry WHERE itemTaskEntry.idItem = item.id AND itemTaskEntry.id = ?");
+                countStatement.setInt(1,id);
+                ResultSet countResult = countStatement.executeQuery();
+                int oldTaskItemCount = countResult.getInt("itemTaskEntry.quantity");
+                int oldItemCount = countResult.getInt("item.count");
+                int itemId = countResult.getInt("item.id");
+                if(oldItemCount + oldTaskItemCount - quantity >= 0){
+                    // Actualizar cantidad de la tarea
+                    PreparedStatement statement = connection.prepareStatement("UPDATE itemTaskEntry SET quantity=? WHERE id=?;");
+                    statement.setInt(1, quantity);
+                    statement.setInt(2, id);
+                    statement.executeUpdate();
+
+                    // Actualizar cantidad del inventario
+                    PreparedStatement newCountStatement = connection.prepareStatement("UPDATE item SET count=? WHERE id=?");
+                    newCountStatement.setInt(1, oldItemCount + oldTaskItemCount - quantity);
+                    newCountStatement.setInt(2, itemId);
+                }
             }
             if(type>=0){
                 PreparedStatement statement = connection.prepareStatement("UPDATE task SET idItem=? WHERE id=?;");
@@ -198,18 +214,35 @@ public class Server {
     public static int createTaskItem(int taskId,int item,int count){
         System.out.println("creating task item...");
         try{
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO itemTaskEntry (id,idTask, quantity, idItem) VALUES (NULL,?,?,?);");
-            statement.setInt(1,taskId);
-            statement.setInt(2,count);
-            statement.setInt(3,item);
+            // Comprobar si hay suficientes items
+            PreparedStatement countStatement = connection.prepareStatement("SELECT * FROM item WHERE id = ?");
+            countStatement.setInt(1,item);
+            ResultSet countResult = countStatement.executeQuery();
+            int oldItemCount = countResult.getInt("count");
+            if(oldItemCount - count >= 0){
+                // Crear datos de taskItem
+                PreparedStatement statement = connection.prepareStatement("INSERT INTO itemTaskEntry (id,idTask, quantity, idItem) VALUES (NULL,?,?,?);");
+                statement.setInt(1,taskId);
+                statement.setInt(2,count);
+                statement.setInt(3,item);
 
-            statement.executeUpdate();
+                statement.executeUpdate();
 
-            PreparedStatement lastTaskStatement = connection.prepareStatement("SELECT MAX(id) FROM itemTaskEntry;");
-            ResultSet resultSet = lastTaskStatement.executeQuery();
-            int id = resultSet.getInt(1);
+                // Obtener id del nuevo taskItem
+                PreparedStatement lastTaskStatement = connection.prepareStatement("SELECT MAX(id) FROM itemTaskEntry;");
+                ResultSet resultSet = lastTaskStatement.executeQuery();
+                int id = resultSet.getInt(1);
+
+                // Actualizar cantidad del inventario
+                PreparedStatement newCountStatement = connection.prepareStatement("UPDATE item SET count=? WHERE id=?");
+                newCountStatement.setInt(1, (oldItemCount - count));
+                newCountStatement.setInt(2, item);
+
+                newCountStatement.executeUpdate();
+
+                return id;
+            }
             
-            return id;
         }catch(SQLException e){
             e.printStackTrace();
         }
@@ -411,7 +444,8 @@ public class Server {
     }
 
     // Update item in the BD
-    public static void updateItem(int id, String name, int image){
+    public static void updateItem(int id, String name, int image, int count){
+        System.out.println("Updating item...");
         try {
             if(name!=null){
                 PreparedStatement statement = connection.prepareStatement("UPDATE item SET itemName=? WHERE id=?;");
@@ -422,6 +456,13 @@ public class Server {
             if(image!=-1){
                 PreparedStatement statement = connection.prepareStatement("UPDATE item SET imageName=? WHERE id=?;");
                 statement.setInt(1, image);
+                statement.setInt(2, id);
+                statement.executeUpdate();
+            }
+            if(count!=-1){
+                System.out.println("count " + count + " id " + id);
+                PreparedStatement statement = connection.prepareStatement("UPDATE item SET count=? WHERE id=?;");
+                statement.setInt(1, count);
                 statement.setInt(2, id);
                 statement.executeUpdate();
             }

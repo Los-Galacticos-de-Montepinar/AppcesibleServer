@@ -17,15 +17,16 @@ public class ItemHandler implements HttpHandler {
             case NEW_ITEM:
                 String newName = jsonMap.get("name");
                 int newImage = Server.string2id(jsonMap.get("image"));
-                int count = Server.string2id(jsonMap.get("count"));
-                Server.createItem(newName, newImage,count);
+                int newCount = Server.string2id(jsonMap.get("count"));
+                Server.createItem(newName, newImage,newCount);
                 Server.response(exchange,200,"Received POST request at /item/new to create item");         
                 break;
             case ITEM:
                 String name = jsonMap.get("name");
                 int image = Server.string2id(jsonMap.get("image"));
-                Server.updateItem(operation.id, name, image);
-                Server.response(exchange, 200, "Received POST request at /item/new to update item");
+                int count = Server.string2id(jsonMap.get("count"));
+                Server.updateItem(operation.id, name, image,count);
+                Server.response(exchange, 200, "Received POST request at /item to update item");
                 break;
             default:
                 Server.response(exchange, 400, "Received POST request with invalid format");

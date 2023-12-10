@@ -74,7 +74,7 @@ public class Utils {
             int id = resultSet.getInt("id");
             String name = resultSet.getString("itemName");
             String image = resultSet.getString("imageName");
-            int count = resultSet.getInt("imageName");
+            int count = resultSet.getInt("count");
          
             jsonResult = "{\"id\":" + id + ",\"name\":\"" + name + "\",\"image\":" + image + ",\"count\":" + count + "}";
         }catch(Exception e){

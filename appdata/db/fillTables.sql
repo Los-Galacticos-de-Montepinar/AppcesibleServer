@@ -10,11 +10,11 @@ INSERT INTO loginInfo (id,idUser,method,textPass,passPart0,passPart1,passPart2) 
 INSERT INTO loginInfo (id,idUser,method,textPass,passPart0,passPart1,passPart2) VALUES (NULL,2,0,'pass33',NULL,NULL,NULL);
 INSERT INTO student (id,idUser,letterSize,interactionFormat) VALUES (NULL,1,20,1);
 
-INSERT INTO item (id, itemName, imageName) VALUES (NULL,'Lápiz',2);
-INSERT INTO item (id, itemName, imageName) VALUES (NULL,'Boli',2);
-INSERT INTO item (id, itemName, imageName) VALUES (NULL,'Regla',2);
-INSERT INTO item (id, itemName, imageName) VALUES (NULL,'Goma',2);
-INSERT INTO item (id, itemName, imageName) VALUES (NULL,'Hoja',2);
+INSERT INTO item (id, itemName, imageName, count) VALUES (NULL,'Lápiz',2,10);
+INSERT INTO item (id, itemName, imageName, count) VALUES (NULL,'Boli',2,20);
+INSERT INTO item (id, itemName, imageName, count) VALUES (NULL,'Regla',2,30);
+INSERT INTO item (id, itemName, imageName, count) VALUES (NULL,'Goma',2,30);
+INSERT INTO item (id, itemName, imageName, count) VALUES (NULL,'Hoja',2,20);
 
 INSERT INTO class(id, className) VALUES (NULL ,'Clase 1');
 INSERT INTO class(id, className) VALUES (NULL ,'Clase 2');
