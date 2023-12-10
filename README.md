@@ -115,6 +115,10 @@ Obtener items de una peticion de material con ID = 1
 ```sh
 curl -i -X GET http://localhost:8080/task/petition/1/item
 ```
+Actualizar item con ID = 1 de una peticion
+```sh
+curl -i  POST -H 'Content-Type: application/json' -d '{"count":1}' http://localhost:8080/task/petition/item/1
+```
 Asignar una tarea con ID = 1 a un usuario con ID = 1
 ```sh
 curl -i -X POST -H 'Content-Type: application/json' -d '{"date": "10/11/24","user":1}' http://localhost:8080/task/1/assign
@@ -165,6 +169,10 @@ curl -i -X GET http://localhost:8080/item/1
 Obtener todos los items
 ```sh
 curl -i -X GET http://localhost:8080/item
+```
+Actualizar item con ID = 1
+```sh
+curl -i -X POST -H 'Content-Type: application/json' -d '{"count":30}' http://localhost:8080/item/1
 ```
 
 ### Clases

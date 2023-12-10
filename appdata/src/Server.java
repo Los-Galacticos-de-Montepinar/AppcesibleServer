@@ -180,12 +180,14 @@ public class Server {
         try {
             if(quantity>=0){
                 // Comprobar si hay suficientes items
+                System.out.println("PRE");
                 PreparedStatement countStatement = connection.prepareStatement("SELECT * FROM item CROSS JOIN itemTaskEntry WHERE itemTaskEntry.idItem = item.id AND itemTaskEntry.id = ?");
                 countStatement.setInt(1,id);
                 ResultSet countResult = countStatement.executeQuery();
-                int oldTaskItemCount = countResult.getInt("itemTaskEntry.quantity");
-                int oldItemCount = countResult.getInt("item.count");
-                int itemId = countResult.getInt("item.id");
+                int oldTaskItemCount = countResult.getInt("quantity");
+                int oldItemCount = countResult.getInt("count");
+                int itemId = countResult.getInt("id");
+                System.out.println(oldItemCount + " + " + oldTaskItemCount + " - " + quantity + " = " + (oldItemCount + oldTaskItemCount - quantity));
                 if(oldItemCount + oldTaskItemCount - quantity >= 0){
                     // Actualizar cantidad de la tarea
                     PreparedStatement statement = connection.prepareStatement("UPDATE itemTaskEntry SET quantity=? WHERE id=?;");
@@ -197,10 +199,11 @@ public class Server {
                     PreparedStatement newCountStatement = connection.prepareStatement("UPDATE item SET count=? WHERE id=?");
                     newCountStatement.setInt(1, oldItemCount + oldTaskItemCount - quantity);
                     newCountStatement.setInt(2, itemId);
+                    newCountStatement.executeUpdate();
                 }
             }
             if(type>=0){
-                PreparedStatement statement = connection.prepareStatement("UPDATE task SET idItem=? WHERE id=?;");
+                PreparedStatement statement = connection.prepareStatement("UPDATE itemTaskEntry SET idItem=? WHERE id=?;");
                 statement.setInt(1, type);
                 statement.setInt(2, id);
                 statement.executeUpdate();

@@ -51,7 +51,7 @@ public class TaskHandler implements HttpHandler{
             }else if(operation.action==UrlAction.TASKITEM){
                 int item = Server.string2id(jsonMap.get("item"));
                 int count = Server.string2id(jsonMap.get("count"));
-                Server.updateTaskItem(operation.id,item,count);
+                Server.updateTaskItem(operation.id,count,item);
                 Server.response(exchange,200,"Received POST request to update task item");
             }else if(operation.action==UrlAction.DELETE_TASKITEM){
                 Server.deleteTaskItem(operation.id);
@@ -110,6 +110,7 @@ public class TaskHandler implements HttpHandler{
         n = Utils.compareURL(path, "/task/?/steps"); if(n!=-2) operation.set(n,UrlAction.ALL_TASKSTEPS);
         if(Utils.compareURL(path, "/task/petition/new")!=-2) operation.set(-1,UrlAction.NEW_PETITION);
         n = Utils.compareURL(path, "/task/petition/?/item/new"); if(n!=-2) operation.set(n,UrlAction.NEW_TASKITEM);
+        n = Utils.compareURL(path, "/task/petition/item/?"); if(n!=-2) operation.set(n,UrlAction.TASKITEM);
         n = Utils.compareURL(path, "/task/petition/?/item"); if(n!=-2) operation.set(n,UrlAction.ALL_TASKITEMS);
         n = Utils.compareURL(path, "/task/petition/item/delete/?"); if(n!=-2) operation.set(n,UrlAction.DELETE_TASKITEM);
         n = Utils.compareURL(path, "/task/?/assign"); if(n!=-2) operation.set(n,UrlAction.TASK_ASSIGN);
