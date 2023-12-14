@@ -675,11 +675,16 @@ public class Server {
 
     // Create bitmap image in the BD
     public static void createImage(String filename,byte[] data){
+        createImage(filename, data,0);
+    }
+
+    public static void createImage(String filename,byte[] data,int type){
         System.out.println("Creating image...");
         try{
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO gallery (id,imageType,imageUrl,imageData,imageDesc) VALUES (NULL,0,NULL,?,?);");
-            statement.setObject(1, data);
-            statement.setString(2, filename);
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO gallery (id,imageType,imageUrl,imageData,imageDesc) VALUES (NULL,?,NULL,?,?);");
+            statement.setInt(1, type);
+            statement.setObject(2, data);
+            statement.setString(3, filename);
 
             statement.executeUpdate();
         }catch(SQLException e){
@@ -690,11 +695,38 @@ public class Server {
     // Get media list from the BD
     public static ResultSet getMediaList(){
         System.out.println("Getting media list...");
-        System.out.println("getting image...");
         ResultSet resultSet = null;
         PreparedStatement statement;
         try {
             statement = connection.prepareStatement("SELECT id, imageType, imageDesc FROM gallery");
+            resultSet = statement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultSet;
+    }
+
+    // Get image list from the BD
+    public static ResultSet getImageList(){
+        System.out.println("Getting image list...");
+        ResultSet resultSet = null;
+        PreparedStatement statement;
+        try {
+            statement = connection.prepareStatement("SELECT id, imageType, imageDesc FROM gallery WHERE imageType = 0");
+            resultSet = statement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultSet;
+    }
+
+    // Get pictogram list from the BD
+    public static ResultSet getPictogramList(){
+        System.out.println("Getting image list...");
+        ResultSet resultSet = null;
+        PreparedStatement statement;
+        try {
+            statement = connection.prepareStatement("SELECT id, imageType, imageDesc FROM gallery WHERE imageType = 1");
             resultSet = statement.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();

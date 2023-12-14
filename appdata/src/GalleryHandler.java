@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.Headers;
@@ -60,6 +61,16 @@ public class GalleryHandler implements HttpHandler {
                                 Server.response(exchange, 400, "not a valid file extension");
                             }
                         }
+
+                        if(name.equals("data")){
+                            if(section.getContentType().equals("application/json")){
+                                Map<String, String> jsonMap = Server.parseJson(new String(section.getData()));
+                                int mediaType = Server.string2id(jsonMap.get("type"));
+                                if(mediaType>=0&&mediaType<=1){
+                                    Server.createImage(name, lastData,mediaType);
+                                }
+                            }
+                        }
                     }
                 }else{
                     Server.response(exchange, 400, "not a valid content type");
@@ -73,12 +84,17 @@ public class GalleryHandler implements HttpHandler {
         }else if ("GET".equals(requestMethod)){
             switch(operation.action){
             case ALL_MEDIA:
-                System.out.println("getting media");
                 Server.response(exchange, 200, Utils.multipleMediaMetadataToJson(Server.getMediaList()));
                 break;
             case MEDIA:
                 ResultSet media = Server.getMedia(operation.id);
                 Server.responseFile(exchange,200, media);
+                break;
+            case ALL_IMAGES:
+                Server.response(exchange, 200, Utils.multipleMediaMetadataToJson(Server.getImageList()));
+                break;
+            case ALL_PICTOGRAMS:
+                Server.response(exchange, 200, Utils.multipleMediaMetadataToJson(Server.getPictogramList()));
                 break;
             default:
                 Server.response(exchange, 400, "Received POST request with invalid format");
@@ -97,6 +113,8 @@ public class GalleryHandler implements HttpHandler {
         n = Utils.compareURL(path, "/gallery/?"); if(n!=-2) operation.set(n,UrlAction.MEDIA);
         if(Utils.compareURL(path, "/gallery/new")!=-2) operation.set(-1,UrlAction.NEW_MEDIA);
         if(Utils.compareURL(path, "/gallery")!=-2) operation.set(-1,UrlAction.ALL_MEDIA);
+        if(Utils.compareURL(path, "/gallery/image")!=-2) operation.set(-1,UrlAction.ALL_IMAGES);
+        if(Utils.compareURL(path, "/gallery/pictogram")!=-2) operation.set(-1,UrlAction.ALL_PICTOGRAMS);
         n = Utils.compareURL(path, "/gallery/delete/?"); if(n!=-2) operation.set(n,UrlAction.DELETE_MEDIA);
 
         return operation;

@@ -92,6 +92,7 @@ CREATE TABLE taskAssignment(
 
 -- type:
 -- 0 bitmap
+-- 1 bitmap pictogram
 CREATE TABLE gallery(
 	id INTEGER PRIMARY KEY,
 	imageType INTEGER,
