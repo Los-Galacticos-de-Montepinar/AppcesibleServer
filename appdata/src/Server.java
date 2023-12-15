@@ -858,7 +858,7 @@ public class Server {
         BufferedInputStream reader = new BufferedInputStream(exchange.getRequestBody());
         ByteArrayOutputStream ous = new ByteArrayOutputStream();
         try {
-            byte[] buffer = new byte[256];
+            byte[] buffer = new byte[1];
             while (reader.read(buffer)!= -1) {
                 ous.write(buffer);
             }
