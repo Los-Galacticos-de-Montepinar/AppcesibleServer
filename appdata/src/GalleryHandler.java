@@ -53,9 +53,9 @@ public class GalleryHandler implements HttpHandler {
 
                                 byte[] data = section.getData();
 
-                                Server.createImage(section.getTag("filename"), data);
+                                int id = Server.createImage(section.getTag("filename"), data);
                                 System.out.println("new image");
-                                Server.response(exchange, 200, "new image");
+                                Server.response(exchange, 200, ""+id);
                             }else{
                                 Server.response(exchange, 400, "not a valid file extension");
                             }

@@ -668,18 +668,20 @@ public class Server {
             statement.setInt(3, interactionFormat);
 
             statement.executeUpdate();
+            
         }catch(SQLException e){
             e.printStackTrace();
         }
     }
 
     // Create bitmap image in the BD
-    public static void createImage(String filename,byte[] data){
-        createImage(filename, data,0);
+    public static int createImage(String filename,byte[] data){
+        return createImage(filename, data,0);
     }
 
-    public static void createImage(String filename,byte[] data,int type){
+    public static int createImage(String filename,byte[] data,int type){
         System.out.println("Creating image...");
+        int id = -1;
         try{
             PreparedStatement statement = connection.prepareStatement("INSERT INTO gallery (id,imageType,imageUrl,imageData,imageDesc) VALUES (NULL,?,NULL,?,?);");
             statement.setInt(1, type);
@@ -687,9 +689,14 @@ public class Server {
             statement.setString(3, filename);
 
             statement.executeUpdate();
+
+            PreparedStatement lastMediaStatement = connection.prepareStatement("SELECT MAX(id) FROM gallery;");
+            ResultSet resultSet = lastMediaStatement.executeQuery();
+            id = resultSet.getInt(1);
         }catch(SQLException e){
             e.printStackTrace();
         }
+        return id;
     }
 
     // Get media list from the BD
