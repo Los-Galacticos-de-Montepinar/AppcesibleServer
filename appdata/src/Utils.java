@@ -229,7 +229,7 @@ public class Utils {
             int type = resultSet.getInt("imageType");
             String desc = resultSet.getString("imageDesc");
          
-            jsonResult = "{\"id\":" + id + ",\"imageType\":" + type + ",\"imageDesc\":" + desc + "\"}";
+            jsonResult = "{\"id\":" + id + ",\"imageType\":" + type + ",\"imageDesc\":\"" + desc + "\"}";
         }catch(Exception e){
             e.printStackTrace();
         }
