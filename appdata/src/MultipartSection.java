@@ -39,14 +39,14 @@ public class MultipartSection {
         String [] lines = tagString.split("\r\n");
         contentType = "text/plain";
         for(int j = 0; j < lines.length; j++){
-            if(lines[j].startsWith("content-type")){
+            if(lines[j].toLowerCase().startsWith("content-type")){
                 int index = lines[j].indexOf(":");
                 if(index>0){
                     contentType = lines[j].substring(index).replace(" ", "").replace(":", "");
                 }else{
                     contentType = "text/plain";
                 }
-            }else if(lines[j].startsWith("content-disposition")){
+            }else if(lines[j].toLowerCase().startsWith("content-disposition")){
                 String [] parts = lines[j].split(";");
                 for(int i = 1 ; i < parts.length; i++){
                     String [] tagParts = parts[i].split("=",2);
@@ -57,6 +57,7 @@ public class MultipartSection {
                 }
             }
         }
+
     }
 
     private void generateData(String dataString){

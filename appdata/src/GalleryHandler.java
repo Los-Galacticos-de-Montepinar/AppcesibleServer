@@ -1,11 +1,5 @@
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.*;
-import java.io.InputStreamReader;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +25,8 @@ public class GalleryHandler implements HttpHandler {
         List<String> ct = headers.get("content-type");
         String contentType = "";
         if(ct!=null){
-            System.out.println(headers);
-
             contentType = ct.get(0).split(";")[0];
+            System.out.println(contentType);
         }
 
         if ("POST".equals(requestMethod)) {
@@ -42,9 +35,10 @@ public class GalleryHandler implements HttpHandler {
                 if(contentType.equals("multipart/form-data")){
                     
                     ArrayList<MultipartSection> sections = Server.getSections(exchange);
+                    boolean responseSent = false;
                     for(MultipartSection section : sections){
                         String name = section.getTag("name");
-                        if(name.equals("filedata")){
+                        if(name!=null&&name.equals("filedata")){
                             System.out.println(section.getContentType());
                             if(
                                 section.getContentType().equals("image/png")||
@@ -59,17 +53,23 @@ public class GalleryHandler implements HttpHandler {
                             }else{
                                 Server.response(exchange, 400, "not a valid file extension");
                             }
+                            responseSent = true;
                         }
 
-                        if(name.equals("data")){
+                        if(name!=null&&name.equals("data")){
                             if(section.getContentType().equals("application/json")){
                                 Map<String, String> jsonMap = Server.parseJson(new String(section.getData()));
                                 int mediaType = Server.string2id(jsonMap.get("type"));
                                 if(mediaType>=0&&mediaType<=1){
-                                    Server.createImage(name, lastData,mediaType);
+                                    int id = Server.createImage(name, lastData,mediaType);
+                                    Server.response(exchange, 200, ""+id);
+                                    responseSent = true;
                                 }
                             }
                         }
+                    }
+                    if(!responseSent){
+                        Server.response(exchange, 400, "no data field");
                     }
                 }else{
                     Server.response(exchange, 400, "not a valid content type");
