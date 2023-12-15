@@ -34,17 +34,16 @@ public class GalleryHandler implements HttpHandler {
             System.out.println(headers);
 
             contentType = ct.get(0).split(";")[0];
-            System.out.println(contentType);
         }
 
         if ("POST".equals(requestMethod)) {
             switch(operation.action){
             case NEW_MEDIA:
                 if(contentType.equals("multipart/form-data")){
+                    
                     ArrayList<MultipartSection> sections = Server.getSections(exchange);
                     for(MultipartSection section : sections){
                         String name = section.getTag("name");
-                        
                         if(name.equals("filedata")){
                             System.out.println(section.getContentType());
                             if(

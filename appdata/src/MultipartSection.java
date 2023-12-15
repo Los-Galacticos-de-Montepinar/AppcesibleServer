@@ -37,23 +37,25 @@ public class MultipartSection {
 
     private void generateTags(String tagString){
         String [] lines = tagString.split("\r\n");
-        if(lines.length>2){
-            int index = lines[2].indexOf(":");
-            if(index>0){
-                contentType = lines[2].substring(index).replace(" ", "").replace(":", "");
-            }else{
-                contentType = "text/plain";
+        contentType = "text/plain";
+        for(int j = 0; j < lines.length; j++){
+            if(lines[j].startsWith("content-type")){
+                int index = lines[j].indexOf(":");
+                if(index>0){
+                    contentType = lines[j].substring(index).replace(" ", "").replace(":", "");
+                }else{
+                    contentType = "text/plain";
+                }
+            }else if(lines[j].startsWith("content-disposition")){
+                String [] parts = lines[j].split(";");
+                for(int i = 1 ; i < parts.length; i++){
+                    String [] tagParts = parts[i].split("=",2);
+                    String value = tagParts[1].replace("\"", "");
+                    String key = tagParts[0].replace(" ", "");
+                    
+                    tags.put(key,value);
+                }
             }
-            
-        }else{
-            contentType = "text/plain";
-        }
-        String [] parts = lines[1].split(";");
-        for(int i = 1 ; i < parts.length; i++){
-            String [] tagParts = parts[i].split("=",2);
-            String value = tagParts[1].replace("\"", "");
-            String key = tagParts[0].replace(" ", "");
-            tags.put(key,value);
         }
     }
 
