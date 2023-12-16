@@ -7,7 +7,8 @@ public class SessionManager {
     
     public static String createSessionToken(int userId,byte[] key) {
         String sessionToken = UUID.randomUUID().toString();
-        sessionTokenToUser.put(sessionToken, new Session(userId, Encrypt.getKeyFromBytes(key)));
+        // sessionTokenToUser.put(sessionToken, new Session(userId, Encrypt.getKeyFromBytes(key))); 
+        sessionTokenToUser.put(sessionToken, new Session(userId, Encrypt.genKeys())); // ! codigo temporal mientras la encriptacion no esté 100%
         return sessionToken;
     }
     
