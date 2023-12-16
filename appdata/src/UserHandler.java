@@ -58,6 +58,7 @@ public class UserHandler implements HttpHandler {
                 int userId = Server.createUser(name, idClass, type, pfp);
                 if(type==1){
                     int letterSize = Server.string2id(jsonMap.get("letterSize"));
+                    if(letterSize<0) letterSize = 10;
                     int interactionFormat = Server.string2id(jsonMap.get("interactionFormat"));
                     Server.createStudent(userId,letterSize, interactionFormat);
                 }
