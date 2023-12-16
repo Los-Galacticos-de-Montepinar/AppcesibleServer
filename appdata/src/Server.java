@@ -590,7 +590,7 @@ public class Server {
         ResultSet resultSet = null;
         PreparedStatement statement;
         try {
-            statement = connection.prepareStatement("SELECT * FROM user WHERE id=?");
+            statement = connection.prepareStatement("SELECT * FROM user cross join loginInfo WHERE id=? AND user.id = loginInfo.idUser");
             statement.setInt(1, id);
             resultSet = statement.executeQuery();
         } catch (SQLException e) {
@@ -661,16 +661,18 @@ public class Server {
     // Create student in the BD
     public static void createStudent(int userId,int letterSize,int interactionFormat){
         System.out.println("Creating student...");
-        try{
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO student (id,idUSer,letterSize,interactionFormat) VALUES (NULL,?,?,?);");
-            statement.setInt(1, userId);
-            statement.setInt(2, letterSize);
-            statement.setInt(3, interactionFormat);
+        if(letterSize!=-1&&interactionFormat!=-1){
+            try{
+                PreparedStatement statement = connection.prepareStatement("INSERT INTO student (id,idUSer,letterSize,interactionFormat) VALUES (NULL,?,?,?);");
+                statement.setInt(1, userId);
+                statement.setInt(2, letterSize);
+                statement.setInt(3, interactionFormat);
 
-            statement.executeUpdate();
-            
-        }catch(SQLException e){
-            e.printStackTrace();
+                statement.executeUpdate();
+                
+            }catch(SQLException e){
+                e.printStackTrace();
+            }
         }
     }
 
@@ -777,10 +779,16 @@ public class Server {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO loginInfo (id,idUser,method,textPass,passPart0,passPart1,passPart2) VALUES (NULL,?,?,?,?,?,?);");
             statement.setInt(1, userId);
             statement.setInt(2, method);
-            statement.setString(3, textPass);
-            statement.setInt(4, passPart0);
-            statement.setInt(5, passPart1);
-            statement.setInt(6, passPart2);
+            if(textPass!=null){
+                statement.setString(3, textPass);
+            }
+            if(passPart0!=-1&&passPart1!=-1&&passPart2!=-1){
+                statement.setInt(4, passPart0);
+                statement.setInt(5, passPart1);
+                statement.setInt(6, passPart2);
+            }
+ 
+
 
             statement.executeUpdate();
         }catch(SQLException e){

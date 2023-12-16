@@ -33,12 +33,12 @@ public class Utils {
             int pfp = resultSet.getInt("idProfileImg");
             int userType = resultSet.getInt("userType");
             int idClass = resultSet.getInt("idClass");
+            int loginType = resultSet.getInt("method");
          
-            jsonResults = "\"id\":" + id + ",\"userName\":\"" + name + "\",\"pfp\":" + pfp +  ",\"userType\":" + userType +  ",\"idClass\":" + idClass;
+            jsonResults = "\"id\":" + id + ",\"userName\":\"" + name + "\",\"pfp\":" + pfp +  ",\"userType\":" + userType +  ",\"idClass\":" + idClass + ",\"loginType\":" + loginType;
 
             if(userType == 1 && hasColumn(resultSet, "letterSize")){
                 int letterSize = resultSet.getInt("letterSize");
-                // TODO devolver el tipo de login
                 // int loginType = resultSet.getInt("loginType");
                 int interactionFormat = resultSet.getInt("interactionFormat");
                 jsonResults += ",\"letterSize\":"+ letterSize + ",\"interactionFormat\":"+interactionFormat;

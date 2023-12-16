@@ -57,8 +57,8 @@ public class UserHandler implements HttpHandler {
 
                 int userId = Server.createUser(name, idClass, type, pfp);
                 if(type==1){
-                    int letterSize = Integer.parseInt(jsonMap.get("letterSize"));
-                    int interactionFormat = Integer.parseInt(jsonMap.get("interactionFormat"));
+                    int letterSize = Server.string2id(jsonMap.get("letterSize"));
+                    int interactionFormat = Server.string2id(jsonMap.get("interactionFormat"));
                     Server.createStudent(userId,letterSize, interactionFormat);
                 }
                 int loginType = Server.string2id(jsonMap.get("loginType"));
@@ -69,7 +69,6 @@ public class UserHandler implements HttpHandler {
 
                 // Si no se especifica el tipo de login será de contraseña
                 loginType = loginType == -1 ? 0 : loginType;
-
                 Server.createLoginInfo(userId,loginType,textPass,passPart0,passPart1,passPart2);
 
                 // Send a response 
