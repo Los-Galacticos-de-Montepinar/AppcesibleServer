@@ -41,7 +41,7 @@ public class Utils {
                 // TODO devolver el tipo de login
                 // int loginType = resultSet.getInt("loginType");
                 int interactionFormat = resultSet.getInt("interactionFormat");
-                jsonResults += ",\"letterSize\":"+ letterSize + ",\"interactionFormat:\""+interactionFormat;
+                jsonResults += ",\"letterSize\":"+ letterSize + ",\"interactionFormat\":"+interactionFormat;
             }
 
         } catch (Exception e) {
