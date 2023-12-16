@@ -18,7 +18,7 @@ DROP TABLE class;
 CREATE TABLE loginInfo(
 	id INTEGER PRIMARY KEY,
 	idUser INTEGER,
-	method INTEGER NOT NULL,
+	loginMethod INTEGER NOT NULL,
 	textPass TEXT,
 	passPart0 INTEGER,
 	passPart1 INTEGER,

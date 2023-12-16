@@ -558,9 +558,9 @@ public class Server {
         ResultSet resultSet = null;
         PreparedStatement statement;
         try {
-            if(type <= 0) statement = connection.prepareStatement("SELECT * FROM user");
+            if(type <= 0) statement = connection.prepareStatement("SELECT * FROM user cross join loginInfo WHERE loginInfo.idUser = user.id");
             else{
-                statement = connection.prepareStatement("SELECT * FROM user WHERE userType=?");
+                statement = connection.prepareStatement("SELECT * FROM user cross join loginInfo WHERE userType=? AND loginInfo.idUser = user.id");
                 statement.setInt(1, type);
             }
             resultSet = statement.executeQuery();
@@ -576,7 +576,7 @@ public class Server {
         ResultSet resultSet = null;
         PreparedStatement statement;
         try {
-            statement = connection.prepareStatement("SELECT * FROM user cross join student WHERE user.id = student.idUser");
+            statement = connection.prepareStatement("SELECT * FROM user cross join student cross join loginInfo WHERE user.id = student.idUser AND user.id = loginInfo.idUser");
             resultSet = statement.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -590,7 +590,7 @@ public class Server {
         ResultSet resultSet = null;
         PreparedStatement statement;
         try {
-            statement = connection.prepareStatement("SELECT * FROM user cross join loginInfo WHERE id=? AND user.id = loginInfo.idUser");
+            statement = connection.prepareStatement("SELECT * FROM user cross join loginInfo WHERE user.id=? AND user.id = loginInfo.idUser");
             statement.setInt(1, id);
             resultSet = statement.executeQuery();
         } catch (SQLException e) {
@@ -605,7 +605,7 @@ public class Server {
         ResultSet resultSet = null;
         PreparedStatement statement;
         try {
-            statement = connection.prepareStatement("SELECT * FROM user cross join student WHERE user.id = student.idUser AND user.id = ?");
+            statement = connection.prepareStatement("SELECT * FROM user cross join student cross join loginInfo WHERE user.id = student.idUser AND user.id = ? AND user.id = loginInfo.id");
             statement.setInt(1, id);
             resultSet = statement.executeQuery();
         } catch (SQLException e) {

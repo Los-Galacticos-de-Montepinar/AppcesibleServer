@@ -33,7 +33,7 @@ public class Utils {
             int pfp = resultSet.getInt("idProfileImg");
             int userType = resultSet.getInt("userType");
             int idClass = resultSet.getInt("idClass");
-            int loginType = resultSet.getInt("method");
+            int loginType = resultSet.getInt("loginMethod");
          
             jsonResults = "\"id\":" + id + ",\"userName\":\"" + name + "\",\"pfp\":" + pfp +  ",\"userType\":" + userType +  ",\"idClass\":" + idClass + ",\"loginType\":" + loginType;
 
