@@ -112,7 +112,7 @@ public class Server {
                 statement.setString(1, inputName);
                 ResultSet resultSet = statement.executeQuery();
 
-                method = resultSet.getInt("method");
+                method = resultSet.getInt("loginMethod");
             }
 
         } catch (SQLException e) {
@@ -518,7 +518,7 @@ public class Server {
     // Update user login info
     public static void updateUserLogin(int id,int method, String textPass, int passPart0, int passPart1, int passPart2){
         try {
-            PreparedStatement methodStatement = connection.prepareStatement("UPDATE loginInfo SET method=? WHERE idUser=?;");
+            PreparedStatement methodStatement = connection.prepareStatement("UPDATE loginInfo SET loginMethod=? WHERE idUser=?;");
             methodStatement.setInt(1, method);
             methodStatement.setInt(2, id);
             methodStatement.executeUpdate();
@@ -776,7 +776,7 @@ public class Server {
     public static void createLoginInfo(int userId,int method,String textPass,int passPart0,int passPart1,int passPart2){
         System.out.println("Creating loginInfo...");
         try{
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO loginInfo (id,idUser,method,textPass,passPart0,passPart1,passPart2) VALUES (NULL,?,?,?,?,?,?);");
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO loginInfo (id,idUser,loginMethod,textPass,passPart0,passPart1,passPart2) VALUES (NULL,?,?,?,?,?,?);");
             statement.setInt(1, userId);
             statement.setInt(2, method);
             if(textPass!=null){
