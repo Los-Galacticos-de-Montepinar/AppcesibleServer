@@ -558,11 +558,26 @@ public class Server {
         ResultSet resultSet = null;
         PreparedStatement statement;
         try {
-            if(type <= 0) statement = connection.prepareStatement("SELECT * FROM user cross join loginInfo WHERE loginInfo.idUser = user.id");
+            if(type < 0) statement = connection.prepareStatement("SELECT * FROM user cross join loginInfo WHERE loginInfo.idUser = user.id");
             else{
                 statement = connection.prepareStatement("SELECT * FROM user cross join loginInfo WHERE userType=? AND loginInfo.idUser = user.id");
                 statement.setInt(1, type);
             }
+            resultSet = statement.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultSet;
+    }
+
+    // Get all non student users from the BD
+    public static ResultSet getAllNonStudentUsers(){
+        System.out.println("getting all users...");
+        ResultSet resultSet = null;
+        PreparedStatement statement;
+        try {
+
+            statement = connection.prepareStatement("SELECT * FROM user cross join loginInfo WHERE userType!=1 AND loginInfo.idUser = user.id");
             resultSet = statement.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
