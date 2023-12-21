@@ -64,6 +64,14 @@ Obtener todos los estudiantes
 ```sh
 curl -i -X GET http://localhost:8080/user/student
 ```
+Obtener todos los administradores
+```sh
+curl -i -X GET http://localhost:8080/user/admin
+```
+Obtener todos los no estudiantes
+```sh
+curl -i -X GET http://localhost:8080/user/nostudent
+```
 Eliminar usuario con ID = 1
 ```sh
 curl -i -X POST http://localhost:8080/user/delete/1
