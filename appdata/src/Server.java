@@ -682,7 +682,7 @@ public class Server {
     }
 
     public static int createImage(String filename,byte[] data,int type){
-        System.out.println("Creating image...");
+        System.out.println("Creating media...");
         int id = -1;
         try{
             PreparedStatement statement = connection.prepareStatement("INSERT INTO gallery (id,imageType,imageUrl,imageData,imageDesc) VALUES (NULL,?,NULL,?,?);");
@@ -699,6 +699,10 @@ public class Server {
             e.printStackTrace();
         }
         return id;
+    }
+
+    public static int createVideo(String filename,byte[] data){
+        return createImage(filename, data,1);
     }
 
     // Get media list from the BD

@@ -43,12 +43,19 @@ public class GalleryHandler implements HttpHandler {
                             if(
                                 section.getContentType().equals("image/png")||
                                 section.getContentType().equals("image/jpeg")||
-                                section.getContentType().equals("image/jpg")){
+                                section.getContentType().equals("image/jpg")
+                                ){
 
                                 byte[] data = section.getData();
 
                                 int id = Server.createImage(section.getTag("filename"), data);
                                 System.out.println("new image");
+                                Server.response(exchange, 200, ""+id);
+                            }else if (section.getContentType().equals("application/octet-stream")){
+                                byte[] data = section.getData();
+
+                                int id = Server.createImage(section.getTag("filename"), data);
+                                System.out.println("new video");
                                 Server.response(exchange, 200, ""+id);
                             }else{
                                 Server.response(exchange, 400, "not a valid file extension");
